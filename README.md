@@ -303,6 +303,7 @@ gongbu/                     (project root)
     services/srs/           Scheduler interface, schedulers/sm2.ts, session.ts (daily queue, grading)
     services/progress/      ProgressStore interface, stores/localStorage.ts, backup.ts (export/import)
   scripts/                  romanize-common-words.ts (regenerates the word list's romanization)
+  public/                   favicon.svg / favicon.ico / apple-touch-icon.png / icon-512.png, site.webmanifest
 ```
 
 ### API
