@@ -85,7 +85,12 @@ export function envelopeOf(samples: ArrayLike<number>, sampleRate: number, frame
  * longest pauses are matched to the sentence ends, and each sentence's words are spread over its own
  * stretch of speech. Returns null if the audio can't be read that way (the duration estimate is used).
  */
-export function wordTimesFromEnvelope(words: string[], { rms, frame }: Envelope): number[] | null {
+export function wordTimesFromEnvelope(
+  words: string[],
+  { rms, frame }: Envelope,
+  /** Optional word starts from speech recognition, used inside sentences where they're plausible. */
+  recognized?: number[] | null,
+): number[] | null {
   if (words.length === 0 || rms.length === 0) return null;
   let max = 0;
   for (let i = 0; i < rms.length; i++) max = Math.max(max, rms[i]);
@@ -115,17 +120,23 @@ export function wordTimesFromEnvelope(words: string[], { rms, frame }: Envelope)
   const speechEnd = (last + 1) * frame;
   const assumed = (w: string, isLast: boolean) => (isLast ? 0 : pauseAfter(w));
 
-  // Possible pause points: after each word ending in punctuation (not the last word). Where each
-  // should fall if the speech were evenly paced comes from the rough estimate over the measured span.
+  // Possible pause points: after each word ending in punctuation (not the last word). Where each is
+  // expected: with speech recognition, where it heard the next word start (it puts that at the start of
+  // the silence, which is exactly what's compared with each gap's start); without it, an even-pace guess.
+  const heard = recognized?.length === words.length ? recognized : null;
   const rough = spread(words, speechStart, speechEnd, assumed);
   const points = words
     .map((w, i) => ({ after: i, kind: SENTENCE_END.test(w) ? "sentence" : CLAUSE_END.test(w) ? "clause" : null }))
     .filter((p): p is { after: number; kind: "sentence" | "clause" } => p.kind !== null && p.after < words.length - 1)
-    .map((p) => ({ ...p, expected: rough[p.after + 1] }));
+    .map((p) => ({ ...p, expected: heard && Number.isFinite(heard[p.after + 1]) ? heard[p.after + 1] : rough[p.after + 1] }));
+
+  // Fix 2: recognition counts a pause as part of the next word; move its starts out of silences first.
+  const snappedHeard = heard ? snapToSpeech(heard, { rms, frame }) : null;
 
   const matched = alignPauses(
     points.map((p) => ({ expected: p.expected, required: p.kind === "sentence" })),
     gaps.map((g) => ({ start: g.start * frame, end: g.end * frame })),
+    heard ? "recognized" : "estimated",
   );
 
   // Split the words at matched pauses; each stretch of speech gets its own words, spread by syllables
@@ -137,13 +148,92 @@ export function wordTimesFromEnvelope(words: string[], { rms, frame }: Envelope)
   for (const seg of [...segments, null]) {
     const endWord = seg ? seg.after + 1 : words.length;
     const endTime = seg ? seg.gap.start * frame : speechEnd;
-    times.push(...spread(words.slice(segStartWord, endWord), segStartTime, endTime, assumed));
+    const segWords = words.slice(segStartWord, endWord);
+    const base = spread(segWords, segStartTime, endTime, assumed);
+    times.push(
+      ...(snappedHeard
+        ? withinSegment(segWords, base, snappedHeard.slice(segStartWord, endWord), segStartTime, endTime)
+        : base),
+    );
     if (seg) {
       segStartWord = endWord;
       segStartTime = seg.gap.end * frame;
     }
   }
   return times;
+}
+
+/**
+ * A recognized start is plausible if the word before it took between these multiples of the stretch's
+ * own average time per syllable (measured: the stretch's length / its syllables). Speakers vary their
+ * pace within a sentence, but not by more than this; recognition errors usually do.
+ */
+const MIN_PACE = 0.4;
+const MAX_PACE = 2.5;
+
+/**
+ * Inside one stretch of speech (between measured pauses), use recognized word starts where they're
+ * plausible: inside the stretch, in order, and implying a sensible length for the word before. The
+ * stretch's first word always starts where the speech does (recognition puts it inside the pause).
+ * Anything implausible falls back to the syllable spread.
+ */
+function withinSegment(words: string[], base: number[], recognized: number[], from: number, to: number): number[] {
+  const out: number[] = [];
+  const totalSyllables = words.reduce((n, w) => n + weight(w), 0) || 1;
+  const pace = Math.max(0.02, (to - from) / totalSyllables); // seconds per syllable in this stretch
+  words.forEach((_, j) => {
+    if (j === 0) {
+      out.push(from);
+      return;
+    }
+    const prev = out[j - 1];
+    const syllables = weight(words[j - 1]);
+    const t = recognized[j];
+    const gap = t - prev;
+    const plausible =
+      Number.isFinite(t) &&
+      t > from &&
+      t < to &&
+      gap >= MIN_PACE * pace * syllables &&
+      gap <= MAX_PACE * pace * syllables;
+    out.push(plausible ? t : Math.max(base[j], prev + MIN_PACE * pace * syllables));
+  });
+  return out;
+}
+
+/** Speech recognition reports times in 0.1 s steps, so a start can land just before the silence it marks. */
+const RECOGNITION_STEP = 0.1;
+
+/**
+ * Speech recognition counts a pause as part of the *next* word (its start time is when the silence
+ * begins). Move any word start that falls inside a measured silence to where speech resumes. A start
+ * up to one recognition step before a real pause (>= MIN_PAUSE) also belongs to that pause; shorter
+ * dips (inside words) only count when the start is actually inside them.
+ */
+export function snapToSpeech(times: number[], { rms, frame }: Envelope): number[] {
+  let max = 0;
+  for (let i = 0; i < rms.length; i++) max = Math.max(max, rms[i]);
+  if (max < MIN_LOUDNESS) return times;
+  const voiced = (i: number) => rms[i] > VOICED * max;
+  // Silent runs (any length here: even a short one before a word means it hasn't started yet).
+  const silences: { start: number; end: number }[] = [];
+  for (let i = 0; i < rms.length; ) {
+    if (voiced(i)) {
+      i++;
+      continue;
+    }
+    const start = i;
+    while (i < rms.length && !voiced(i)) i++;
+    silences.push({ start: start * frame, end: i * frame });
+  }
+  const snapped = times.map((t) => {
+    const s = silences.find(
+      (g) => t < g.end && (t >= g.start || (g.end - g.start >= MIN_PAUSE && t >= g.start - RECOGNITION_STEP)),
+    );
+    return s && s.end < rms.length * frame ? s.end : t;
+  });
+  for (let i = 1; i < snapped.length; i++) snapped[i] = Math.max(snapped[i], snapped[i - 1]);
+  return snapped;
 }
 
 /**
@@ -155,11 +245,17 @@ export function wordTimesFromEnvelope(words: string[], { rms, frame }: Envelope)
 export function alignPauses(
   points: { expected: number; required: boolean }[],
   gaps: { start: number; end: number }[],
+  /**
+   * Where the expected positions came from. "estimated" (an even-pace guess) is rough, so a point may
+   * sit ~0.5 s from its real pause and still be matched. "recognized" (speech recognition heard it,
+   * 0.1 s steps) is precise, so a point only claims a pause within ~0.2 s; a pause further away is a
+   * pause somewhere else in the sentence (e.g. after a topic word like 저는), not this point's.
+   */
+  expectedFrom: "estimated" | "recognized" = "estimated",
 ): { point: number; gap: number }[] {
-  // Seconds of position error that skipping a point is worth. Expected positions are rough (they come
-  // from an even-pace estimate), so a comma can sit ~0.5s from its real pause and still be matched.
-  const SKIP_REQUIRED = 1.5;
-  const SKIP_OPTIONAL = 0.5;
+  // Seconds of position error that skipping a point is worth.
+  const SKIP_REQUIRED = expectedFrom === "recognized" ? 0.6 : 1.5;
+  const SKIP_OPTIONAL = expectedFrom === "recognized" ? 0.2 : 0.5;
   const P = points.length;
   const G = gaps.length;
   // cost[p][g]: best cost having handled the first p points and first g gaps.

@@ -4,6 +4,7 @@ import { CATEGORIES, PARTS_OF_SPEECH, type CategoryId } from "../../data/vocabul
 import { localDate } from "../../services/srs/dates";
 import { applyGrade, buildSession, cardKey, requeue, summarize, type SessionCard } from "../../services/srs/session";
 import { DRILL_MODES, GRADES, type DrillMode, type Grade } from "../../services/srs/types";
+import { navigate } from "../../router";
 import { useTts } from "../../tts/TtsContext";
 import { SpeakButton } from "../SpeakButton";
 import {
@@ -107,6 +108,13 @@ export function StudyPanel() {
     setFinished(null);
     setRunning({ mode, today, queue, index: 0, revealed: false, done: 0 });
   };
+
+  // Arriving from Home's "Start" (/words#start): begin today's review right away.
+  useEffect(() => {
+    if (window.location.hash !== "#start") return;
+    navigate("/words", { replace: true });
+    start();
+  }, []); // only on arrival
 
   if (running) {
     return (

@@ -261,9 +261,12 @@ checked by hand. Levels (1급/2급) are estimates: there's no single official TO
   생산량). Treat romanization as a guide.
 - Word highlighting during playback with **Google Cloud**: Google's Korean voices report 0 seconds for every
   word (checked against the live API), so timings come from, in order of preference:
-  1. **Speech-to-Text** on the audio (exact; see §4.4). Requested in the background and cached with the audio.
-  2. **Measured pauses**: the browser decodes the audio, finds where speech starts/ends and where each pause
-     is, matches pauses to the punctuation, and spreads words by syllable count in between.
+  1. **Measured pauses + Speech-to-Text** (best): the browser decodes the audio and finds where speech
+     starts/ends and where each pause is, matched to the punctuation; this fixes every sentence/clause start
+     exactly. Inside each sentence, word starts come from Speech-to-Text (see §4.4) where they're
+     plausible. Recognition alone is coarse (0.1 s steps) and was measured up to ~0.9 s off on Chirp audio
+     (it counts a pause as part of the next word), so implausible times fall back to the syllable spread.
+  2. **Measured pauses only** (Speech-to-Text unavailable): words spread by syllable count between pauses.
   3. **Duration only**: the same spread over the whole audio, if the audio can't be analysed.
 
   Playback starts right away on the best timings available, and switches to better ones as they arrive. With **Browser**, it works only if the voice reports word
@@ -289,9 +292,9 @@ gongbu/                     (project root)
       wordSuggester/        types.ts (WordSuggester), validate.ts, providers/claude.ts
     *.test.ts               Vitest unit tests
   src/
-    App.tsx                 Routes: /hangul (start page; / redirects here), /rules, /words (lazy-loaded), /reader
+    App.tsx                 Routes: / (home), /hangul, /rules, /words (lazy-loaded), /reader
     router.tsx              Tiny History-API router + <Link> (no dependency)
-    pages/                  ReaderPage, HangulChartPage, RulesPage, WordsPage
+    pages/                  HomePage, ReaderPage, HangulChartPage, RulesPage, WordsPage
     components/             UI (Layout, SpeakButton, hangul/…, words/…)
     data/                   hangul.ts, rules.ts, words.ts, commonWords.ts, vocabularyMeta.ts: all learning content
     tts/TtsContext.tsx      Shared voice/speed/playback state for every page

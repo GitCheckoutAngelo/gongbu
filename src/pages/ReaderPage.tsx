@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { generateParagraph } from "../api/client";
 import { AnimatedHeight } from "../components/AnimatedHeight";
+import { HighlightMenu } from "../components/HighlightMenu";
 import { StableLabel } from "../components/StableLabel";
 import { DIFFICULTIES, GenerateForm, LENGTHS } from "../components/GenerateForm";
 import { IconPencil, IconRepeat, IconTag } from "../components/words/icons";
@@ -121,7 +122,32 @@ export function ReaderPage() {
     }
   }, [showTranslation]);
   /** While the paragraph plays, the sentence being read (its translation follows along). */
-  const playingSentence = playing && spokenWord >= 0 ? (sentenceOf[spokenWord] ?? -1) : -1;
+  // Where playback is: the spoken word if the voice reports words, otherwise the last reported position
+  // (the Browser voice may only report sentence starts).
+  const position = playing ? (spokenWord >= 0 ? spokenWord : resumeWord) : -1;
+  const playingSentence = position >= 0 ? (sentenceOf[position] ?? -1) : -1;
+  // Sentences by punctuation: the same boundaries the audio timing is anchored to, so this is reliable.
+  const readingSentenceOf = useMemo(() => {
+    let n = 0;
+    return (result?.words ?? []).map((w) => {
+      const index = n;
+      if (/[.!?。…]["'”’)]*$/.test(w.korean)) n++;
+      return index;
+    });
+  }, [result]);
+  const readingSentence = position >= 0 ? (readingSentenceOf[position] ?? -1) : -1;
+
+  // Pause/resume follow the same precision as the highlight: word-level only when words are followed
+  // (and the voice has usable word timing); otherwise by sentence, whose start is always exact.
+  const wordLevel = tts.wordsFollowed;
+  /** Where Play/Resume continues from: the paused word, or the start of its sentence. */
+  const resumeFrom = () => {
+    if (wordLevel || resumeWord <= 0) return resumeWord;
+    const sentence = readingSentenceOf[resumeWord];
+    const start = readingSentenceOf.indexOf(sentence);
+    return start >= 0 ? start : resumeWord;
+  };
+  const paused = !playing && resumeWord > 0;
   useEffect(() => {
     setHoverSentence(-1);
     setPinnedSentence(-1);
@@ -138,7 +164,7 @@ export function ReaderPage() {
   // playback stopped): carry on from the current position at the new speed.
   const wasPlaying = useRef(false);
   useEffect(() => {
-    if (wasPlaying.current && !playing) void play(resumeWord);
+    if (wasPlaying.current && !playing) void play(resumeFrom());
   }, [tts.rate]); // only when the speed changes
   useEffect(() => {
     wasPlaying.current = playing;
@@ -164,6 +190,17 @@ export function ReaderPage() {
     });
     // Played to the end: the next Play starts over. Paused/stopped: keep the position.
     if (outcome === "ended") setResumeWord(0);
+  };
+
+  /** Remove the paragraph and go back to the empty form (settings are kept). */
+  const clear = () => {
+    tts.stop();
+    setResult(null);
+    setUsed(null);
+    setEditing(false);
+    setResumeWord(0);
+    setJustGenerated(false);
+    setGenerateError(null);
   };
 
   const generate = async (settings: Settings = { difficulty, length, topic }) => {
@@ -270,16 +307,26 @@ export function ReaderPage() {
                   <span className="chip-label">Translation</span>
                 </button>
               )}
+              <HighlightMenu />
             </div>
             <PlaybackControls
               playing={playing}
               loading={loadingAudio}
               resumable={resumeWord > 0}
               rate={tts.rate}
-              onPlay={() => void play(resumeWord)}
+              onPlay={() => void play(resumeFrom())}
               onStop={tts.stop}
               onRateChange={tts.setRate}
             />
+            <button
+              type="button"
+              className="reader-clear"
+              onClick={clear}
+              aria-label="Clear this paragraph"
+              title="Clear this paragraph"
+            >
+              ×
+            </button>
           </div>
           <ParagraphView
             words={result.words}
@@ -288,8 +335,11 @@ export function ReaderPage() {
             highlightSentence={showTranslation ? highlightSentence : -1}
             onHoverSentence={setHoverSentence}
             showRomanized={showRomanized}
-            activeIndex={playing ? spokenWord : -1}
-            pausedIndex={!playing && resumeWord > 0 ? resumeWord : -1}
+            activeIndex={playing && tts.wordsFollowed ? spokenWord : -1}
+            readingSentenceOf={readingSentenceOf}
+            readingSentence={tts.followSentence ? readingSentence : -1}
+            pausedIndex={paused && wordLevel ? resumeWord : -1}
+            pausedSentence={paused && !wordLevel ? (readingSentenceOf[resumeWord] ?? -1) : -1}
             onPlayFrom={(i) => void play(i)}
             onPlayWord={(i) => void tts.speak(result.words[i].korean, `${PLAY_KEY}-word-${i}`)}
             playingWord={
@@ -298,7 +348,9 @@ export function ReaderPage() {
                 : -1
             }
             loadingWord={
-              tts.loadingKey?.startsWith(`${PLAY_KEY}-word-`) ? Number(tts.loadingKey.slice(`${PLAY_KEY}-word-`.length)) : -1
+              tts.loadingKey?.startsWith(`${PLAY_KEY}-word-`)
+                ? Number(tts.loadingKey.slice(`${PLAY_KEY}-word-`.length))
+                : -1
             }
             onStopWord={tts.stop}
           />
@@ -309,7 +361,7 @@ export function ReaderPage() {
                   ? result.sentences.map((s, n) => (
                       <span
                         key={n}
-                        className={`tr-sentence${n === highlightSentence ? " hl" : ""}${n === playingSentence ? " playing" : ""}`}
+                        className={`tr-sentence${n === highlightSentence ? " hl" : ""}${n === playingSentence && tts.followSentence ? " playing" : ""}`}
                         onMouseEnter={() => setHoverSentence(n)}
                         // Touch screens have no hover: tap a sentence to pin its highlight (tap again to clear).
                         onClick={() => setPinnedSentence((p) => (p === n ? -1 : n))}

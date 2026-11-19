@@ -20,6 +20,12 @@ interface Props {
   onStopWord?: () => void;
   /** Sentence index of each word (-1 if unknown), for sentence highlighting. */
   sentenceOf?: number[];
+  /** Sentence index of each word, from punctuation (for the read-aloud highlight). */
+  readingSentenceOf?: number[];
+  /** Sentence being read aloud right now, or -1. */
+  readingSentence?: number;
+  /** While paused at sentence level: the sentence Resume will start from, or -1. */
+  pausedSentence?: number;
   /** Sentence to tint (hovered here or in the translation), or -1. */
   highlightSentence?: number;
   /** Pointer moved onto a word's sentence (-1 when it leaves the paragraph). */
@@ -39,6 +45,9 @@ export function ParagraphView({
   loadingWord = -1,
   onStopWord,
   sentenceOf,
+  readingSentenceOf,
+  readingSentence = -1,
+  pausedSentence = -1,
   highlightSentence = -1,
   onHoverSentence,
 }: Props) {
@@ -122,9 +131,9 @@ export function ParagraphView({
         {words.map((word, i) => (
           <span
             key={i}
-            className={
-              highlightSentence >= 0 && sentenceOf?.[i] === highlightSentence ? "word-slot in-sentence" : "word-slot"
-            }
+            className={`word-slot${highlightSentence >= 0 && sentenceOf?.[i] === highlightSentence ? " in-sentence" : ""}${
+              readingSentence >= 0 && readingSentenceOf?.[i] === readingSentence ? " reading-sentence" : ""
+            }${pausedSentence >= 0 && readingSentenceOf?.[i] === pausedSentence ? " paused-sentence" : ""}`}
             onMouseEnter={sentenceOf ? () => onHoverSentence?.(sentenceOf[i] ?? -1) : undefined}
           >
             <ruby

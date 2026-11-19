@@ -1,5 +1,5 @@
 import { alignWords, synthesizeSpeech, synthesizeTimedSpeech } from "../../../api/client";
-import { envelopeOf, estimateWordTimes, wordTimesFromEnvelope, type Envelope } from "../estimateWordTimes";
+import { envelopeOf, estimateWordTimes, snapToSpeech, wordTimesFromEnvelope, type Envelope } from "../estimateWordTimes";
 import { getGoogleVoice } from "../googleVoice";
 import { registerTtsProvider } from "../providerStore";
 import { TtsError, type SpeakOptions, type SpeakResult, type TtsProvider } from "../TtsProvider";
@@ -14,6 +14,23 @@ interface CachedAudio {
   envelope?: Promise<Envelope | null>;
   /** Exact word times from speech recognition on the server (null if unavailable). */
   aligned?: Promise<number[] | null>;
+}
+
+/**
+ * Best word times: the measured audio gives exact pause/sentence boundaries; speech recognition places
+ * the words inside each sentence where its times are plausible (it's coarse, 0.1 s steps, and can be
+ * wrong by up to ~0.9 s on its own, measured on Chirp audio). Without the audio analysis, recognition
+ * times are only snapped out of silences.
+ */
+function withAlignment(words: string[], envelope: Promise<Envelope | null>, aligned: Promise<number[] | null>) {
+  return {
+    envelope,
+    aligned: Promise.all([aligned, envelope]).then(([times, env]) => {
+      if (!times) return null;
+      if (!env) return times;
+      return wordTimesFromEnvelope(words, env, times) ?? snapToSpeech(times, env);
+    }),
+  };
 }
 
 /** How long playback waits for the audio analysis before starting on the rough estimate. */
@@ -137,8 +154,7 @@ export class GoogleCloudTtsProvider implements TtsProvider {
         ? synthesizeTimedSpeech(words, rate, voice || undefined).then(({ audio, wordTimes }) => ({
             url: URL.createObjectURL(audio),
             wordTimes,
-            envelope: analyse(audio),
-            aligned: alignWords(audio, words),
+            ...withAlignment(words, analyse(audio), alignWords(audio, words)),
           }))
         : synthesizeSpeech(text, rate, voice || undefined).then((blob) => ({
             url: URL.createObjectURL(blob),

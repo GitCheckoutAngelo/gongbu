@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect } from "react";
 import { Layout } from "./components/Layout";
 import { HangulChartPage } from "./pages/HangulChartPage";
+import { HomePage } from "./pages/HomePage";
 import { ReaderPage } from "./pages/ReaderPage";
 import { RulesPage } from "./pages/RulesPage";
 import { navigate, useLocation } from "./router";
@@ -9,7 +10,7 @@ import { TtsProviderRoot, useTts } from "./tts/TtsContext";
 // Loaded on demand: the word list is the biggest piece of data in the app.
 const WordsPage = lazy(() => import("./pages/WordsPage"));
 
-const KNOWN_PATHS = ["/hangul", "/rules", "/words", "/words/browse", "/words/add", "/reader"];
+const KNOWN_PATHS = ["/", "/hangul", "/rules", "/words", "/words/browse", "/words/add", "/reader"];
 
 function Routes() {
   const { path, hash } = useLocation();
@@ -21,9 +22,9 @@ function Routes() {
     if (!window.location.hash) window.scrollTo(0, 0);
   }, [path]); // intentionally only on page change
 
-  // The app opens on the first tab (Hangul). Anything unknown goes there too.
+  // The app opens on Home. Anything unknown goes there too.
   useEffect(() => {
-    if (!KNOWN_PATHS.includes(path)) navigate(`/hangul${window.location.hash}`, { replace: true });
+    if (!KNOWN_PATHS.includes(path)) navigate("/", { replace: true });
   }, [path]);
 
   let page;
@@ -47,9 +48,9 @@ function Routes() {
       );
       break;
     default:
-      page = <HangulChartPage hash={hash} />;
+      page = <HomePage />;
   }
-  const section = path.startsWith("/words") ? "/words" : KNOWN_PATHS.includes(path) ? path : "/hangul";
+  const section = path.startsWith("/words") ? "/words" : KNOWN_PATHS.includes(path) ? path : "/";
   return <Layout path={section}>{page}</Layout>;
 }
 

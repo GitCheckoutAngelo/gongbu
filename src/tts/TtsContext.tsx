@@ -10,6 +10,31 @@ import { getTtsProvider, hasTtsProvider, listTtsProviders } from "../services/tt
 import type { SpeakOptions, SpeakResult } from "../services/tts/TtsProvider";
 
 const PROVIDER_STORAGE_KEY = "korean-reader.ttsProvider";
+const FOLLOW_WORDS_KEY = "gongbu.followWords";
+const FOLLOW_SENTENCE_KEY = "gongbu.followSentence";
+
+/** A remembered on/off choice (default on). */
+function useRememberedToggle(key: string): [boolean, (on: boolean) => void] {
+  const [value, setValue] = useState(() => {
+    try {
+      return localStorage.getItem(key) !== "off";
+    } catch {
+      return true;
+    }
+  });
+  const set = useCallback(
+    (on: boolean) => {
+      setValue(on);
+      try {
+        localStorage.setItem(key, on ? "on" : "off");
+      } catch {
+        // ignore
+      }
+    },
+    [key],
+  );
+  return [value, set];
+}
 
 function readStoredProvider(): string {
   try {
@@ -27,6 +52,19 @@ export interface TtsContextValue {
   setProviderId: (id: string) => void;
   rate: number;
   setRate: (rate: number) => void;
+  /** The user's choice: highlight the current sentence while reading aloud. */
+  followSentence: boolean;
+  setFollowSentence: (on: boolean) => void;
+  /** The user's choice: highlight the current word while reading aloud. */
+  followWords: boolean;
+  /**
+   * Whether words are actually followed: the user's choice, except with Chirp 3 HD voices, whose word
+   * timing is too unpredictable (they highlight by sentence only).
+   */
+  wordsFollowed: boolean;
+  /** True while a Chirp 3 HD voice is selected (word highlighting unavailable). */
+  sentenceOnlyVoice: boolean;
+  setFollowWords: (on: boolean) => void;
   /** Google Cloud voice id ("" = the server's default). */
   googleVoice: string;
   setGoogleVoice: (voice: string) => void;
@@ -52,6 +90,10 @@ export function TtsProviderRoot({ children }: { children: ReactNode }) {
   const [providerId, setProviderIdState] = useState(readStoredProvider);
   const [rate, setRateState] = useState(1);
   const [googleVoice, setGoogleVoiceState] = useState(getGoogleVoice);
+  const [followWords, setFollowWords] = useRememberedToggle(FOLLOW_WORDS_KEY);
+  const [followSentence, setFollowSentence] = useRememberedToggle(FOLLOW_SENTENCE_KEY);
+  // Chirp 3 HD voices don't give reliable word timing: they highlight by sentence only.
+  const sentenceOnlyVoice = providerId === "google_cloud" && googleVoice.includes("-Chirp3-HD-");
   const [playingKey, setPlayingKey] = useState<string | null>(null);
   const [loadingKey, setLoadingKey] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -153,6 +195,12 @@ export function TtsProviderRoot({ children }: { children: ReactNode }) {
       setRate,
       googleVoice,
       setGoogleVoice,
+      followSentence,
+      setFollowSentence,
+      followWords,
+      setFollowWords,
+      wordsFollowed: followWords && !sentenceOnlyVoice,
+      sentenceOnlyVoice,
       playingKey,
       loadingKey,
       error,
@@ -168,6 +216,11 @@ export function TtsProviderRoot({ children }: { children: ReactNode }) {
       setRate,
       googleVoice,
       setGoogleVoice,
+      followSentence,
+      setFollowSentence,
+      followWords,
+      setFollowWords,
+      sentenceOnlyVoice,
       playingKey,
       loadingKey,
       error,

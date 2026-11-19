@@ -110,6 +110,13 @@ export const IconCloud = () => (
   </Svg>
 );
 
+export const IconHome = () => (
+  <Svg>
+    <path d="M4 11.5L12 4l8 7.5" />
+    <path d="M6.5 10v9.5h11V10" />
+  </Svg>
+);
+
 export const IconPencil = () => (
   <Svg>
     <path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z" />

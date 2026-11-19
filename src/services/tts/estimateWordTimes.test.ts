@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { alignPauses, envelopeOf, estimateWordTimes, wordTimesFromEnvelope } from "./estimateWordTimes";
+import { alignPauses, envelopeOf, estimateWordTimes, snapToSpeech, wordTimesFromEnvelope } from "./estimateWordTimes";
 
 describe("estimateWordTimes (duration only)", () => {
   it("spreads the audio over syllables", () => {
@@ -110,6 +110,68 @@ describe("wordTimesFromEnvelope (measured)", () => {
     expect(t[1]).toBeGreaterThan(0.1);
     expect(t[1]).toBeLessThan(2.1);
     expect(wordTimesFromEnvelope(["가"], env([["s", 50]]))).toBeNull(); // silence only
+  });
+
+  it("combines: pauses from the audio, plausible recognition times inside sentences", () => {
+    // sentence 1: 0–1.0s, pause 1.0–1.6s, sentence 2: 1.6–2.6s
+    const e = env([
+      ["v", 100],
+      ["s", 60],
+      ["v", 100],
+    ]);
+    const words = ["저는", "친구들과", "함께.", "저녁에는", "먹어요."];
+    // Recognition: word 3 impossibly soon after a 4-syllable word, word 4 inside the pause; word 5 fine.
+    const recognized = [0, 0.2, 0.3, 1.0, 2.1];
+    const t = wordTimesFromEnvelope(words, e, recognized)!;
+    expect(t[0]).toBeCloseTo(0);
+    expect(t[1]).toBeCloseTo(0.2); // plausible: used
+    expect(t[2]).toBeGreaterThan(0.2 + 4 * 0.07 - 1e-9); // 0.1 s for "친구들과" is implausible: not 0.3
+    expect(t[3]).toBeCloseTo(1.6); // sentence start comes from the measured pause, not 1.0
+    expect(t[4]).toBeCloseTo(2.1); // plausible: used
+  });
+
+  it("doesn't let an extra pause after a conjunction steal the sentence pause (Kore: 그래서)", () => {
+    // 피곤해요. (0–1.0) | sentence pause 1.0–1.4 | 그래서 (1.4–1.8) | unpunctuated pause 1.8–2.2 | rest
+    const e = env([
+      ["v", 100],
+      ["s", 40],
+      ["v", 40],
+      ["s", 40],
+      ["v", 120],
+    ]);
+    const words = ["피곤해요.", "그래서", "주말에는", "쉬어요."];
+    // Recognition puts each word at the start of the silence before it.
+    const t = wordTimesFromEnvelope(words, e, [0, 1.0, 1.8, 2.8])!;
+    expect(t[1]).toBeCloseTo(1.4); // sentence starts where speech resumes after the *sentence* pause
+    expect(t[2]).toBeCloseTo(2.2); // moved out of the 그래서 pause
+    expect(t[3]).toBeCloseTo(2.8);
+  });
+
+  it("doesn't give a comma a pause that belongs to the next word (Kore: 있는데, 저는 [pause] 아직)", () => {
+    // From the real failing recording, shifted to 0: 있는데, at 0, 저는 at 0.3, pause 0.61–0.96, 아직 after.
+    const e = env([
+      ["v", 61], // 있는데, 저는
+      ["s", 35], // pause after 저는 (not after the comma)
+      ["v", 80], // 아직 한 번도
+    ]);
+    const words = ["있는데,", "저는", "아직", "한번도."];
+    // Recognition: 저는 right after the comma (no pause there), 아직 at the start of the pause.
+    const t = wordTimesFromEnvelope(words, e, [0, 0.3, 0.6, 1.2])!;
+    expect(t[1]).toBeCloseTo(0.3); // not pushed to the end of the later pause
+    expect(t[2]).toBeCloseTo(0.96); // starts where speech resumes after the pause
+  });
+
+  it("snaps word starts that fall inside a silence to where speech resumes", () => {
+    // speech 0–1.0s, silence 1.0–1.6s, speech 1.6–2.5s
+    const e = env([
+      ["v", 100],
+      ["s", 60],
+      ["v", 90],
+    ]);
+    // Recognition put word 2 at 1.0s (start of the pause); word 3 is mid-speech and stays.
+    expect(snapToSpeech([0, 1.0, 2.0], e)).toEqual([0, 1.6, 2.0]);
+    // Leading silence: the first word moves to the speech onset.
+    expect(snapToSpeech([0, 0.5], env([["s", 20], ["v", 80]]))).toEqual([0.2, 0.5]);
   });
 
   it("builds an envelope from samples", () => {
