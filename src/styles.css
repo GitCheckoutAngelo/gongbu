@@ -56,7 +56,12 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, var(--font-ko);
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    var(--font-ko);
   line-height: 1.5;
   -webkit-text-size-adjust: 100%;
 }
@@ -263,7 +268,9 @@ button[aria-pressed="true"] {
 .word {
   ruby-align: center;
   border-radius: 6px;
-  transition: background-color 0.12s, color 0.12s;
+  transition:
+    background-color 0.12s,
+    color 0.12s;
 }
 
 .word.clickable {
@@ -1147,7 +1154,9 @@ input.search {
 
 .rule-card {
   scroll-margin-top: 12px;
-  transition: box-shadow 0.3s, border-color 0.3s;
+  transition:
+    box-shadow 0.3s,
+    border-color 0.3s;
 }
 
 .rule-card.highlighted {
@@ -2281,21 +2290,44 @@ button.rule-close {
   }
 }
 
-.tag-final-sounds { --h: 200; }
-.tag-double-finals { --h: 185; }
-.tag-linking { --h: 145; }
-.tag-nasalization { --h: 265; }
-.tag-liquidization { --h: 290; }
-.tag-tensification { --h: 15; }
-.tag-aspiration { --h: 35; }
-.tag-palatalization { --h: 325; }
-.tag-h-dropping { --h: 50; }
+.tag-final-sounds {
+  --h: 200;
+}
+.tag-double-finals {
+  --h: 185;
+}
+.tag-linking {
+  --h: 145;
+}
+.tag-nasalization {
+  --h: 265;
+}
+.tag-liquidization {
+  --h: 290;
+}
+.tag-tensification {
+  --h: 15;
+}
+.tag-aspiration {
+  --h: 35;
+}
+.tag-palatalization {
+  --h: 325;
+}
+.tag-h-dropping {
+  --h: 50;
+}
 .tag-ui,
-.tag-ye { --h: 0; --tag-l: 45%; }
+.tag-ye {
+  --h: 0;
+  --tag-l: 45%;
+}
 
 @media (prefers-color-scheme: dark) {
   .tag-ui,
-  .tag-ye { --tag-l: 78%; }
+  .tag-ye {
+    --tag-l: 78%;
+  }
 }
 
 /* Details: the full rule links read as quiet links rather than outlined buttons. */
@@ -2766,7 +2798,10 @@ button.option-tile {
   border-width: 2px;
   font-weight: 600;
   color: var(--muted);
-  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s,
+    color 0.2s;
 }
 
 button.option-tile:hover:not(:disabled):not(.selected) {
@@ -2999,7 +3034,9 @@ button.voice-option {
   text-align: left;
   border-width: 2px;
   font-weight: 500;
-  transition: background-color 0.2s, border-color 0.2s;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
 }
 
 button.voice-option:hover:not(:disabled):not(.selected) {
@@ -3148,7 +3185,11 @@ button.speed-pill.selected {
 button.jamo-tile {
   min-height: 86px;
   border-radius: 12px;
-  transition: transform 0.15s, border-color 0.15s, background-color 0.15s, box-shadow 0.15s;
+  transition:
+    transform 0.15s,
+    border-color 0.15s,
+    background-color 0.15s,
+    box-shadow 0.15s;
 }
 
 button.jamo-tile:hover:not(:disabled):not(.selected) {
@@ -3220,7 +3261,10 @@ button.toggle-chip {
   border-radius: 999px;
   font-size: 0.88rem;
   color: var(--muted);
-  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s,
+    color 0.2s;
 }
 
 .chip-glyph {
@@ -3234,7 +3278,9 @@ button.toggle-chip {
   font-weight: 800;
   background: var(--bg);
   color: var(--muted);
-  transition: background-color 0.2s, color 0.2s;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
 }
 
 button.toggle-chip[aria-pressed="true"] {
@@ -3370,7 +3416,10 @@ button.chart-tab {
   padding: 10px 8px;
   border-width: 2px;
   color: var(--muted);
-  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s,
+    color 0.2s;
 }
 
 .chart-tab.tab-consonants {
@@ -3907,7 +3956,9 @@ button.generate-cancel {
 
 /* Category dropdown: focus ring on the whole icon+select box, not just the select. */
 label.select-with-icon {
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 label.select-with-icon:focus-within {
@@ -4085,7 +4136,9 @@ button.summary-new:hover:not(:disabled) {
   font-size: 0.88rem;
   font-weight: 600;
   color: var(--muted);
-  transition: border-color 0.2s, color 0.2s;
+  transition:
+    border-color 0.2s,
+    color 0.2s;
 }
 
 button.summary-settings:hover .summary-edit {
@@ -4106,7 +4159,9 @@ button.summary-settings:hover .summary-edit {
 }
 
 .word rt {
-  transition: font-size 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.25s ease;
+  transition:
+    font-size 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 0.25s ease;
 }
 
 .hide-romanization rt {
@@ -4149,7 +4204,11 @@ button.generate-cancel:hover:not(:disabled) {
 }
 
 .word {
-  transition: background-color 0.15s, color 0.15s, outline-color 0.15s, box-shadow 0.15s;
+  transition:
+    background-color 0.15s,
+    color 0.15s,
+    outline-color 0.15s,
+    box-shadow 0.15s;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -4347,7 +4406,10 @@ button.wp-play-from:hover:not(:disabled) {
 .tr-sentence {
   border-radius: 4px;
   cursor: default;
-  transition: background-color 0.2s, box-shadow 0.2s, color 0.2s;
+  transition:
+    background-color 0.2s,
+    box-shadow 0.2s,
+    color 0.2s;
 }
 
 .tr-sentence.hl {
@@ -4958,7 +5020,9 @@ button.wp-speak.loading {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  transition: border-color 0.2s, background-color 0.2s;
+  transition:
+    border-color 0.2s,
+    background-color 0.2s;
 }
 
 .home-tile:hover {
@@ -5281,7 +5345,10 @@ button.toggle-chip:disabled {
 
 @media (prefers-reduced-motion: no-preference) {
   .word {
-    transition: background-color 0.12s, color 0.12s, box-shadow 0.12s;
+    transition:
+      background-color 0.12s,
+      color 0.12s,
+      box-shadow 0.12s;
   }
 }
 
@@ -5528,5 +5595,165 @@ button.wp-play-from {
   /* The Korean name sits top-left (the compact layout centred it). */
   .home-tile-ko {
     align-self: flex-start;
+  }
+}
+
+/* ---------- Reader on phones: keep the card inside the screen ---------- */
+
+/* Nothing inside the paragraph card may force it wider than the screen. */
+.reader {
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
+}
+
+.reader > * {
+  min-width: 0;
+}
+
+@media (max-width: 480px) {
+  .reader .toolbar {
+    flex-wrap: nowrap;
+    gap: 6px;
+  }
+
+  /* Round, icon-only Play (its name is announced via aria-label). */
+  button.play-button {
+    width: 44px;
+    height: 44px;
+    min-height: 0;
+    padding: 0;
+    justify-content: center;
+    border-radius: 50%;
+    flex: none;
+  }
+
+  button.play-button .stable-label {
+    display: none;
+  }
+
+  button.speed-chip {
+    width: 3.6em;
+    font-size: 0.82rem;
+  }
+
+  .reader .playback {
+    gap: 6px;
+  }
+
+  button.reader-clear {
+    width: 30px;
+  }
+
+  /* Highlight panel: anchored to the toolbar (full width), so it can't run off the edge. */
+  .highlight-menu {
+    position: static;
+  }
+
+  .highlight-panel {
+    left: 0;
+    right: 0;
+    width: auto;
+  }
+}
+
+/* Phones: every toolbar chip (including Highlight, which sits in its own wrapper) is a compact circle. */
+@media (max-width: 480px) {
+  .reader button.toggle-chip {
+    width: auto;
+    padding: 5px;
+    gap: 0;
+  }
+}
+
+/* While a paragraph is being written: a card holding only the writing animation (see RegeneratingBody). */
+.reader-writing-card {
+  animation: writing-in 0.3s ease-out;
+}
+
+.reader-body {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.reader-regenerating-body {
+  display: grid;
+  place-items: center;
+  height: 120px;
+  overflow: hidden;
+  transition: height 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* ---------- Writing animation (while Claude writes a paragraph) ---------- */
+.writing {
+  display: grid;
+  place-items: center;
+}
+
+.writing-art {
+  width: 80px;
+  height: auto;
+  overflow: visible;
+}
+
+/* Strokes start hidden (dash offset 1) and are written by WritingAnimation's script. */
+.writing-line {
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+.writing-pen-body {
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 1.5;
+}
+
+.writing-pen-nib {
+  fill: var(--accent);
+  stroke: var(--accent);
+  stroke-width: 1;
+  stroke-linejoin: round;
+}
+
+/* Shown only once the script animates it. */
+.writing-pen {
+  visibility: hidden;
+}
+
+/* Regenerating: over the old paragraph, which fades back and softens so the two don't clash. */
+.reader {
+  position: relative;
+}
+
+@keyframes writing-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reader-writing-card {
+    animation: none;
+  }
+  .reader-regenerating-body {
+    transition: none;
+  }
+  .writing-line {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Phones: the voice settings sheet keeps one height (switching to Chirp's long voice list used to make
+   it grow); its content scrolls inside. */
+@media (max-width: 560px) {
+  .settings-popover {
+    height: 85dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
 }

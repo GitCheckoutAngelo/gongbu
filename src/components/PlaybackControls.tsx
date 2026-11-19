@@ -35,6 +35,8 @@ export function PlaybackControls({ playing, loading, resumable, rate, onPlay, on
         className={`play-button${playing ? " playing" : ""}${loading ? " loading" : ""}`}
         onClick={playing ? onStop : onPlay}
         aria-busy={loading || undefined}
+        // The visible label hides on phones (icon-only button), so name it explicitly.
+        aria-label={loading ? "Loading audio (press to cancel)" : playing ? "Pause" : resumable ? "Resume" : "Play"}
         title={loading ? "Getting the audio ready (press to cancel)" : undefined}
       >
         <span className="icon-slot" aria-hidden="true">

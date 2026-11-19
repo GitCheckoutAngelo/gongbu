@@ -7,6 +7,7 @@ import { DIFFICULTIES, GenerateForm, LENGTHS } from "../components/GenerateForm"
 import { IconPencil, IconRepeat, IconTag } from "../components/words/icons";
 import { ParagraphView } from "../components/ParagraphView";
 import { PlaybackControls } from "../components/PlaybackControls";
+import { WritingAnimation } from "../components/WritingAnimation";
 import { useTts } from "../tts/TtsContext";
 import type { Difficulty, GenerateResponse, Length } from "../types";
 import { loadReaderSnapshot, saveReaderSnapshot } from "./readerSnapshot";
@@ -73,6 +74,30 @@ function SummaryBar({
   );
 }
 
+/**
+ * The writing card's content. When regenerating, it glides from the old paragraph card's height
+ * (measured when Regenerate was pressed) to its own fixed height.
+ */
+function RegeneratingBody({ fromHeight }: { fromHeight: number }) {
+  const [height, setHeight] = useState(fromHeight || undefined);
+  useEffect(() => {
+    // Two frames: let the starting height paint before transitioning to the CSS one.
+    let second = 0;
+    const first = requestAnimationFrame(() => {
+      second = requestAnimationFrame(() => setHeight(undefined));
+    });
+    return () => {
+      cancelAnimationFrame(first);
+      cancelAnimationFrame(second);
+    };
+  }, []);
+  return (
+    <div className="reader-regenerating-body" style={{ height }}>
+      <WritingAnimation />
+    </div>
+  );
+}
+
 export function ReaderPage() {
   const tts = useTts();
   // Restored from the last visit (switching tabs or refreshing keeps your place).
@@ -104,6 +129,8 @@ export function ReaderPage() {
   /** The form is open again on top of an existing paragraph. */
   const [editing, setEditing] = useState(false);
   const readerRef = useRef<HTMLElement>(null);
+  /** The paragraph card's inner height when Regenerate was pressed (the writing card glides from it). */
+  const cardHeightRef = useRef(0);
   // Sentence highlighting between the Korean and the translation.
   const [hoverSentence, setHoverSentence] = useState(-1);
   const [pinnedSentence, setPinnedSentence] = useState(-1);
@@ -207,6 +234,13 @@ export function ReaderPage() {
     tts.stop();
     tts.clearError();
     setResumeWord(0);
+    const card = readerRef.current;
+    if (card) {
+      const style = getComputedStyle(card);
+      cardHeightRef.current = card.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
+    } else {
+      cardHeightRef.current = 0;
+    }
     setGenerating(true);
     setGenerateError(null);
     try {
@@ -269,7 +303,14 @@ export function ReaderPage() {
         </div>
       )}
 
-      {result && (
+      {/* While a paragraph is being written, the card holds only the writing animation. */}
+      {generating && (
+        <section className="card reader-writing-card" aria-busy="true">
+          <RegeneratingBody fromHeight={cardHeightRef.current} />
+        </section>
+      )}
+
+      {result && !generating && (
         <section
           ref={readerRef}
           key={result.paragraph}
@@ -328,54 +369,56 @@ export function ReaderPage() {
               ×
             </button>
           </div>
-          <ParagraphView
-            words={result.words}
-            // Sentence highlighting only makes sense while the translation is showing.
-            sentenceOf={showTranslation ? sentenceOf : undefined}
-            highlightSentence={showTranslation ? highlightSentence : -1}
-            onHoverSentence={setHoverSentence}
-            showRomanized={showRomanized}
-            activeIndex={playing && tts.wordsFollowed ? spokenWord : -1}
-            readingSentenceOf={readingSentenceOf}
-            readingSentence={tts.followSentence ? readingSentence : -1}
-            pausedIndex={paused && wordLevel ? resumeWord : -1}
-            pausedSentence={paused && !wordLevel ? (readingSentenceOf[resumeWord] ?? -1) : -1}
-            onPlayFrom={(i) => void play(i)}
-            onPlayWord={(i) => void tts.speak(result.words[i].korean, `${PLAY_KEY}-word-${i}`)}
-            playingWord={
-              tts.playingKey?.startsWith(`${PLAY_KEY}-word-`)
-                ? Number(tts.playingKey.slice(`${PLAY_KEY}-word-`.length))
-                : -1
-            }
-            loadingWord={
-              tts.loadingKey?.startsWith(`${PLAY_KEY}-word-`)
-                ? Number(tts.loadingKey.slice(`${PLAY_KEY}-word-`.length))
-                : -1
-            }
-            onStopWord={tts.stop}
-          />
-          <AnimatedHeight>
-            {showTranslation && result.translation && (
-              <p className="translation reader-enter" lang="en" onMouseLeave={() => setHoverSentence(-1)}>
-                {result.sentences?.length
-                  ? result.sentences.map((s, n) => (
-                      <span
-                        key={n}
-                        className={`tr-sentence${n === highlightSentence ? " hl" : ""}${n === playingSentence && tts.followSentence ? " playing" : ""}`}
-                        onMouseEnter={() => setHoverSentence(n)}
-                        // Touch screens have no hover: tap a sentence to pin its highlight (tap again to clear).
-                        onClick={() => setPinnedSentence((p) => (p === n ? -1 : n))}
-                      >
-                        {s.english}{" "}
-                      </span>
-                    ))
-                  : result.translation}
-              </p>
-            )}
-          </AnimatedHeight>
-          <p className="muted small reader-hint">
-            <span className="hint-dot" aria-hidden="true" /> Tap any word for its meaning and audio.
-          </p>
+          <div className="reader-body">
+            <ParagraphView
+              words={result.words}
+              // Sentence highlighting only makes sense while the translation is showing.
+              sentenceOf={showTranslation ? sentenceOf : undefined}
+              highlightSentence={showTranslation ? highlightSentence : -1}
+              onHoverSentence={setHoverSentence}
+              showRomanized={showRomanized}
+              activeIndex={playing && tts.wordsFollowed ? spokenWord : -1}
+              readingSentenceOf={readingSentenceOf}
+              readingSentence={tts.followSentence ? readingSentence : -1}
+              pausedIndex={paused && wordLevel ? resumeWord : -1}
+              pausedSentence={paused && !wordLevel ? (readingSentenceOf[resumeWord] ?? -1) : -1}
+              onPlayFrom={(i) => void play(i)}
+              onPlayWord={(i) => void tts.speak(result.words[i].korean, `${PLAY_KEY}-word-${i}`)}
+              playingWord={
+                tts.playingKey?.startsWith(`${PLAY_KEY}-word-`)
+                  ? Number(tts.playingKey.slice(`${PLAY_KEY}-word-`.length))
+                  : -1
+              }
+              loadingWord={
+                tts.loadingKey?.startsWith(`${PLAY_KEY}-word-`)
+                  ? Number(tts.loadingKey.slice(`${PLAY_KEY}-word-`.length))
+                  : -1
+              }
+              onStopWord={tts.stop}
+            />
+            <AnimatedHeight>
+              {showTranslation && result.translation && (
+                <p className="translation reader-enter" lang="en" onMouseLeave={() => setHoverSentence(-1)}>
+                  {result.sentences?.length
+                    ? result.sentences.map((s, n) => (
+                        <span
+                          key={n}
+                          className={`tr-sentence${n === highlightSentence ? " hl" : ""}${n === playingSentence && tts.followSentence ? " playing" : ""}`}
+                          onMouseEnter={() => setHoverSentence(n)}
+                          // Touch screens have no hover: tap a sentence to pin its highlight (tap again to clear).
+                          onClick={() => setPinnedSentence((p) => (p === n ? -1 : n))}
+                        >
+                          {s.english}{" "}
+                        </span>
+                      ))
+                    : result.translation}
+                </p>
+              )}
+            </AnimatedHeight>
+            <p className="muted small reader-hint">
+              <span className="hint-dot" aria-hidden="true" /> Tap any word for its meaning and audio.
+            </p>
+          </div>
         </section>
       )}
 
