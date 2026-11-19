@@ -1,0 +1,7 @@
+# Local secrets for the Worker (npm run dev). Copy to .dev.vars and fill in. Never commit .dev.vars.
+# In production, set these with: npx wrangler secret put ANTHROPIC_API_KEY   (and GOOGLE_TTS_API_KEY)
+ANTHROPIC_API_KEY=
+GOOGLE_TTS_API_KEY=
+# Optional: a key for Google Speech-to-Text (exact word highlighting). If empty, GOOGLE_TTS_API_KEY is used,
+# which works if that key is also allowed to use the Cloud Speech-to-Text API.
+GOOGLE_STT_API_KEY=

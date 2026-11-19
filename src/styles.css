@@ -1,0 +1,4915 @@
+:root {
+  --bg: #f6f5f2;
+  --card: #ffffff;
+  --text: #1d1d1f;
+  --muted: #6b6b70;
+  --border: #e2e0da;
+  --accent: #2f5fd0;
+  --accent-text: #ffffff;
+  --accent-soft: #e7edfb;
+  --ruby: #2f5fd0;
+  --error-bg: #fdecec;
+  --error-text: #a21b1b;
+  --warning: #8a5a00;
+  --success: #1d7a46;
+  --success-soft: #e3f4ea;
+  --caution: #b45f06;
+  --caution-soft: #fdf0e1;
+  --radius: 14px;
+  --font-ko: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", system-ui, sans-serif;
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #141416;
+    --card: #1e1e21;
+    --text: #ececef;
+    --muted: #9a9aa2;
+    --border: #33333a;
+    --accent: #7ea2ff;
+    --accent-text: #0d1424;
+    --accent-soft: #23304f;
+    --ruby: #9db8ff;
+    --error-bg: #3a1c1c;
+    --error-text: #ffb4b4;
+    --warning: #f0c060;
+    --success: #6fd49a;
+    --success-soft: #1b3326;
+    --caution: #f3a95c;
+    --caution-soft: #3a2a18;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, var(--font-ko);
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+}
+
+.app {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 20px 16px 48px;
+}
+
+header h1 {
+  font-family: var(--font-ko);
+  font-size: 1.6rem;
+  margin: 0 0 10px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+}
+
+.subtitle {
+  font-family: system-ui, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.small {
+  font-size: 0.85rem;
+}
+
+/* ---------- Form ---------- */
+
+.generate-form {
+  display: grid;
+  gap: 14px;
+}
+
+.field {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.field legend,
+.field > label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0;
+  margin-bottom: 6px;
+}
+
+.segmented {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.segmented label {
+  text-align: center;
+  padding: 10px 4px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  user-select: none;
+}
+
+.segmented label + label {
+  border-left: 1px solid var(--border);
+}
+
+.segmented label.selected {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.segmented label:has(input:focus-visible) {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.segmented input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+input[type="text"],
+select {
+  font: inherit;
+  color: inherit;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  min-height: 44px;
+  width: 100%;
+}
+
+button {
+  font: inherit;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 16px;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+  font-size: 1.05rem;
+}
+
+button[aria-pressed="true"] {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* ---------- Reader ---------- */
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.playback {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.speed {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.speed select {
+  width: auto;
+}
+
+.korean-text {
+  font-family: var(--font-ko);
+  font-size: clamp(1.55rem, 5.5vw, 2.1rem);
+  line-height: 2.6;
+  margin: 8px 0 0;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+.korean-text.hide-romanization {
+  line-height: 1.9;
+}
+
+.word {
+  ruby-align: center;
+  border-radius: 6px;
+  transition: background-color 0.12s, color 0.12s;
+}
+
+.word.clickable {
+  cursor: pointer;
+}
+
+.word.clickable:hover:not(.speaking) {
+  background: var(--accent-soft);
+}
+
+.word.clickable:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Where Resume will continue from */
+.word.paused {
+  box-shadow: inset 0 -3px 0 var(--accent);
+}
+
+.paragraph-wrap {
+  position: relative;
+}
+
+.word.selected:not(.speaking) {
+  background: var(--accent-soft);
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.word-popover {
+  position: absolute;
+  z-index: 10;
+  width: max-content;
+  max-width: min(320px, 100%);
+  padding: 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+
+.word-popover-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.word-popover-korean {
+  font-family: var(--font-ko);
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.word-popover-gloss {
+  margin: 4px 0 10px;
+  font-size: 1.05rem;
+}
+
+.word-popover-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.word-popover-actions button {
+  padding: 8px 12px;
+  min-height: 40px;
+  font-size: 0.95rem;
+}
+
+.translation {
+  margin: 14px 0 0;
+  padding: 12px 14px;
+  border-left: 3px solid var(--accent);
+  background: var(--accent-soft);
+  border-radius: 0 8px 8px 0;
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+.reader-hint {
+  margin: 8px 0 0;
+}
+
+.word.speaking {
+  background: var(--accent-soft);
+  color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.word rt {
+  font-family: system-ui, sans-serif;
+  font-size: 0.42em;
+  color: var(--ruby);
+  letter-spacing: 0.01em;
+  user-select: none;
+}
+
+.hide-romanization rt {
+  display: none;
+}
+
+.error {
+  background: var(--error-bg);
+  color: var(--error-text);
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+
+.warning {
+  color: var(--warning);
+  margin: 4px 0 0;
+}
+
+.empty {
+  text-align: center;
+  padding: 24px 0;
+  margin: 0;
+}
+
+/* ---------- Settings ---------- */
+
+.settings summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.settings[open] summary {
+  margin-bottom: 12px;
+}
+
+.settings p {
+  margin: 4px 0 0;
+}
+
+@media (max-width: 480px) {
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .toolbar > button,
+  .toggles > button {
+    width: 100%;
+  }
+  .playback > button {
+    flex: 1;
+  }
+}
+
+/* ---------- Layout / navigation ---------- */
+
+.site-header {
+  margin-bottom: 16px;
+}
+
+.nav {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 4px;
+}
+
+.nav a {
+  text-align: center;
+  padding: 9px 4px;
+  border-radius: 9px;
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.nav a [lang="ko"] {
+  font-family: var(--font-ko);
+}
+
+.nav a[aria-current="page"] {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.tts-error {
+  position: sticky;
+  top: 8px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+button.dismiss {
+  min-height: 32px;
+  padding: 2px 10px;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  font-size: 1.3rem;
+}
+
+a {
+  color: var(--accent);
+}
+
+h2 {
+  font-size: 1.25rem;
+  margin: 0 0 8px;
+}
+
+h3 {
+  font-size: 1rem;
+  margin: 0 0 8px;
+}
+
+.ko-sub {
+  font-family: var(--font-ko);
+  font-weight: 500;
+  font-size: 0.9em;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+body.no-scroll {
+  overflow: hidden;
+}
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+/* ---------- Speak buttons ---------- */
+
+button.speak-button {
+  min-height: 40px;
+  min-width: 40px;
+  padding: 6px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  line-height: 1.2;
+}
+
+button.speak-button.playing {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.speak-icon {
+  font-size: 0.95rem;
+}
+
+/* ---------- Hangul chart ---------- */
+
+.jamo-section {
+  margin-top: 18px;
+}
+
+.jamo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(68px, 1fr));
+  gap: 8px;
+}
+
+button.jamo-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 4px 8px;
+  min-height: 84px;
+}
+
+button.jamo-tile.selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.jamo-char {
+  font-family: var(--font-ko);
+  font-size: 2.1rem;
+  font-weight: 500;
+  line-height: 1.1;
+}
+
+.jamo-rom {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+/* Detail sheet: bottom sheet on phones, centered panel on wider screens. */
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgb(0 0 0 / 0.45);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.sheet {
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  max-height: 88vh;
+  overflow-y: auto;
+  background: var(--card);
+  border-radius: 18px 18px 0 0;
+  padding: 20px 16px 28px;
+  overscroll-behavior: contain;
+}
+
+@media (min-width: 700px) {
+  .sheet-backdrop {
+    align-items: center;
+  }
+  .sheet {
+    border-radius: 18px;
+    padding: 24px;
+  }
+}
+
+button.sheet-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  min-height: 40px;
+  min-width: 40px;
+  padding: 0;
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.detail-head {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  padding-right: 44px;
+}
+
+.detail-char {
+  font-family: var(--font-ko);
+  font-size: 4.5rem;
+  line-height: 1;
+  min-width: 1.2em;
+  text-align: center;
+}
+
+.detail-head h2 {
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.detail-head h2 [lang="ko"] {
+  font-family: var(--font-ko);
+}
+
+.detail-name-rom {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.detail-head-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.detail-sound {
+  margin-top: 14px;
+}
+
+.detail-sound p {
+  margin: 0 0 4px;
+}
+
+/* Position cards: "Start of a syllable" / "End of a syllable" */
+.position-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 10px;
+  align-items: start;
+}
+
+.position-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.position-card.muted-card {
+  border-style: dashed;
+}
+
+.position-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  margin: 0 0 8px;
+}
+
+.position-title [lang="ko"] {
+  font-family: var(--font-ko);
+  text-transform: none;
+}
+
+.position-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+button.position-play {
+  padding: 6px 14px 6px 10px;
+  gap: 10px;
+}
+
+.position-syllable {
+  font-family: var(--font-ko);
+  font-size: 2rem;
+  font-weight: 500;
+  line-height: 1.1;
+}
+
+.position-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.position-meta [lang="ko"] {
+  font-family: var(--font-ko);
+}
+
+.position-rom {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--ruby);
+  line-height: 1.1;
+}
+
+.position-text {
+  margin: 10px 0 0;
+}
+
+.section-title {
+  margin: 18px 0 0;
+  font-size: 1.05rem;
+}
+
+.position-stack {
+  display: grid;
+  gap: 10px;
+}
+
+.section-title + .position-stack,
+.section-title + .position-card {
+  margin-top: 10px;
+}
+
+.position-subtitle {
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.also-involved {
+  margin: 10px 0 0;
+}
+
+/* Generated "how its sound changes" tables */
+table.change-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+  font-size: 0.92rem;
+}
+
+.change-table th {
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+.change-table td {
+  padding: 8px 6px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.ct-when {
+  width: 28%;
+}
+
+.ct-becomes {
+  font-weight: 600;
+}
+
+.ct-note {
+  display: block;
+  font-weight: 400;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.ct-example {
+  white-space: nowrap;
+}
+
+.ct-example .speak-button {
+  min-height: 34px;
+  min-width: 34px;
+  padding: 4px 8px;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+.ct-example-text {
+  display: inline-flex;
+  flex-direction: column;
+  vertical-align: middle;
+  white-space: normal;
+}
+
+.ct-word {
+  font-family: var(--font-ko);
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.ct-pron {
+  color: var(--accent);
+}
+
+.ct-rom {
+  color: var(--ruby);
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.ct-rule {
+  font-size: 0.85rem;
+}
+
+button.show-all {
+  margin-top: 8px;
+  min-height: 34px;
+  padding: 4px 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+@media (max-width: 600px) {
+  .change-table thead {
+    display: none;
+  }
+  .change-table tr {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "when rule" "becomes becomes" "example example";
+    gap: 2px 8px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .change-table td {
+    border: 0;
+    padding: 0;
+    width: auto;
+  }
+  .ct-when {
+    grid-area: when;
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+  .ct-when::before {
+    content: attr(data-label) " ";
+  }
+  .ct-becomes {
+    grid-area: becomes;
+  }
+  .ct-example {
+    grid-area: example;
+    margin-top: 4px;
+  }
+  .ct-rule {
+    grid-area: rule;
+    text-align: right;
+  }
+}
+
+/* Hangul inside English prose (so a lone ㅣ doesn't look like "|"). */
+.ko-inline {
+  font-family: var(--font-ko);
+  background: var(--accent-soft);
+  border-radius: 4px;
+  padding: 0 0.25em;
+  margin: 0 0.05em;
+  white-space: nowrap;
+}
+
+.name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+button.name-speak {
+  min-height: 32px;
+  min-width: 32px;
+  padding: 4px 8px;
+  border-radius: 999px;
+}
+
+/* Tabs inside the detail sheet */
+.detail-tabs {
+  display: flex;
+  gap: 4px;
+  margin-top: 16px;
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.detail-tabs button {
+  flex: 1 0 auto;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: var(--muted);
+  padding: 8px 10px;
+  min-height: 40px;
+  font-size: 0.92rem;
+}
+
+.detail-tabs button.selected {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.detail-tabs button:hover:not(.selected) {
+  color: var(--text);
+}
+
+.detail-panel {
+  padding-top: 14px;
+  min-height: 150px;
+}
+
+.detail-panel p {
+  margin: 0 0 6px;
+}
+
+.example-words {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.example-words li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+}
+
+.example-words .speak-button {
+  align-self: center;
+}
+
+.example-hangul {
+  font-family: var(--font-ko);
+  font-size: 1.6rem;
+  font-weight: 500;
+}
+
+.example-rom {
+  color: var(--ruby);
+  font-weight: 500;
+}
+
+.example-meaning {
+  color: var(--muted);
+}
+
+.notes {
+  margin: 10px 0 0;
+  padding-left: 20px;
+  font-size: 0.92rem;
+}
+
+.notes li + li {
+  margin-top: 4px;
+}
+
+.rule-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pill-link {
+  display: inline-block;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 12px;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.pill-link:hover {
+  border-color: var(--accent);
+}
+
+/* ---------- Syllable blocks ---------- */
+
+.syllable-blocks p {
+  margin-top: 0;
+}
+
+.tag {
+  border-radius: 4px;
+  padding: 0 4px;
+}
+
+.tag.initial,
+.cell.initial {
+  background: #dbe7ff;
+  color: #1b3f99;
+}
+
+.tag.vowel,
+.cell.vowel {
+  background: #ffe4cc;
+  color: #8a3d00;
+}
+
+.tag.final,
+.cell.final {
+  background: #d7f2dd;
+  color: #1d6430;
+}
+
+@media (prefers-color-scheme: dark) {
+  .tag.initial,
+  .cell.initial {
+    background: #22345f;
+    color: #bcd0ff;
+  }
+  .tag.vowel,
+  .cell.vowel {
+    background: #4a2e14;
+    color: #ffd1a6;
+  }
+  .tag.final,
+  .cell.final {
+    background: #1d3d25;
+    color: #b6ecc2;
+  }
+}
+
+.block-examples {
+  list-style: none;
+  padding: 0;
+  margin: 14px 0 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.block-example {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 8px;
+}
+
+.block-diagram {
+  display: grid;
+  width: 96px;
+  height: 96px;
+  gap: 3px;
+  font-family: var(--font-ko);
+  font-size: 1.5rem;
+}
+
+.block-diagram.layout-side {
+  grid-template-areas: "i v";
+  grid-template-columns: 1fr 1fr;
+}
+
+.block-diagram.layout-side.has-final {
+  grid-template-areas: "i v" "f f";
+  grid-template-rows: 1.4fr 1fr;
+}
+
+.block-diagram.layout-below {
+  grid-template-areas: "i" "v";
+}
+
+.block-diagram.layout-below.has-final {
+  grid-template-areas: "i" "v" "f";
+}
+
+.block-diagram.layout-wrap {
+  grid-template-areas: "i v2" "v1 v2";
+  grid-template-columns: 1.4fr 1fr;
+}
+
+.block-diagram.layout-wrap.has-final {
+  grid-template-areas: "i v2" "v1 v2" "f f";
+}
+
+.cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+}
+
+.block-equation {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: var(--font-ko);
+  font-size: 1.05rem;
+}
+
+.block-result {
+  font-size: 1.6rem;
+}
+
+/* ---------- Rules ---------- */
+
+input.search {
+  font: inherit;
+  color: inherit;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  min-height: 44px;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.rule-index {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin-top: 12px;
+  font-size: 0.9rem;
+}
+
+.rule-card {
+  scroll-margin-top: 12px;
+  transition: box-shadow 0.3s, border-color 0.3s;
+}
+
+.rule-card.highlighted {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.rule-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.rule-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6em;
+  height: 1.6em;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.85em;
+  vertical-align: 0.1em;
+}
+
+.anchor-link {
+  text-decoration: none;
+  color: var(--muted);
+  font-weight: 700;
+  padding: 2px 6px;
+}
+
+.formulas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 4px 0 12px;
+}
+
+.formulas code {
+  font-family: var(--font-ko);
+  font-size: 1.05rem;
+  background: var(--accent-soft);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 4px 10px;
+}
+
+table.rule-examples {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.rule-examples th {
+  text-align: left;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+.rule-examples td {
+  padding: 8px 6px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.rule-examples td:last-child {
+  text-align: right;
+  width: 1%;
+}
+
+.ex-spelling,
+.ex-pronounced {
+  font-family: var(--font-ko);
+  font-size: 1.5rem;
+  font-weight: 500;
+}
+
+.ex-pronounced {
+  color: var(--accent);
+}
+
+.ex-meaning,
+.ex-note {
+  display: block;
+  font-family: system-ui, sans-serif;
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.ex-rom {
+  color: var(--ruby);
+  font-weight: 500;
+}
+
+.rule-foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.related-jamo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.jamo-link {
+  font-family: var(--font-ko);
+  font-size: 1.25rem;
+  text-decoration: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  min-width: 40px;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.jamo-link:hover {
+  border-color: var(--accent);
+}
+
+/* On narrow screens, lay each example row out as a compact two-line card. */
+@media (max-width: 520px) {
+  .rule-examples thead {
+    display: none;
+  }
+  .rule-examples tr {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    grid-template-areas: "spell pron play" "rom rom play";
+    align-items: center;
+    column-gap: 8px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .rule-examples td {
+    border: 0;
+    padding: 0;
+  }
+  .rule-examples td:nth-child(1) {
+    grid-area: spell;
+  }
+  .rule-examples td:nth-child(2) {
+    grid-area: pron;
+  }
+  .rule-examples td:nth-child(3) {
+    grid-area: rom;
+  }
+  .rule-examples td:nth-child(4) {
+    grid-area: play;
+    width: auto;
+  }
+}
+
+/* ---------- Common Words ---------- */
+
+@media (max-width: 420px) {
+  /* Four nav items: stack the Korean above the English. */
+  .nav a [lang="ko"] {
+    display: block;
+  }
+}
+
+.tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.tabs a {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.tabs a[aria-current="page"] {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.study-setup {
+  display: grid;
+  gap: 14px;
+}
+
+.study-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  align-items: end;
+}
+
+.study-filters .field {
+  flex: 1 1 200px;
+}
+
+label.check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+label.check input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+}
+
+.session-done {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--accent-soft);
+  color: var(--accent);
+  vertical-align: middle;
+}
+
+.badge.warn {
+  background: transparent;
+  border: 1px solid var(--warning);
+  color: var(--warning);
+}
+
+button.link-button {
+  min-height: 32px;
+  padding: 4px 8px;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.drill {
+  display: grid;
+  gap: 14px;
+}
+
+.drill-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.drill-front,
+.drill-back {
+  text-align: center;
+}
+
+.drill-front {
+  min-height: 110px;
+  display: grid;
+  place-content: center;
+}
+
+.drill-korean {
+  font-family: var(--font-ko);
+  font-size: clamp(2rem, 9vw, 3rem);
+  font-weight: 700;
+  margin: 0;
+  word-break: keep-all;
+}
+
+.drill-english {
+  font-size: 1.35rem;
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+
+.drill-listen button.speak-button {
+  font-size: 1.1rem;
+  padding: 12px 20px;
+}
+
+.drill-back {
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+  display: grid;
+  gap: 6px;
+}
+
+.drill-back p {
+  margin: 0;
+}
+
+.drill-details {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 8px 12px;
+}
+
+.word-rom {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.word-pron {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+}
+
+.word-pron-form {
+  font-family: var(--font-ko);
+  font-weight: 600;
+}
+
+a.rule-chip {
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--accent);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+a.rule-chip:hover {
+  background: var(--accent-soft);
+}
+
+.progress-panel {
+  display: block;
+}
+
+.progress-settings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  margin: 12px 0;
+}
+
+.progress-settings label {
+  display: grid;
+  gap: 4px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.progress-settings input,
+.word-row-meaning input {
+  font: inherit;
+  color: inherit;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 12px;
+}
+
+.progress-settings input {
+  width: 8em;
+}
+
+.backup-buttons,
+.add-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.browser-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0 6px;
+}
+
+.browser-filters select {
+  flex: 1 1 160px;
+  min-width: 0;
+}
+
+.word-list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+}
+
+.word-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) minmax(0, 1.2fr) auto;
+  gap: 4px 12px;
+  align-items: center;
+  padding: 10px 0;
+  border-top: 1px solid var(--border);
+}
+
+.word-row-main,
+.word-row-meaning {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+  min-width: 0;
+}
+
+.word-row-korean {
+  font-family: var(--font-ko);
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.word-note {
+  flex-basis: 100%;
+}
+
+.word-status {
+  font-size: 0.8rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.word-status.mistake {
+  color: var(--error-text);
+  font-weight: 600;
+}
+
+.add-words {
+  display: grid;
+  gap: 14px;
+}
+
+.add-words > p {
+  margin: 0;
+}
+
+.add-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: end;
+}
+
+.add-controls .field {
+  flex: 1 1 180px;
+}
+
+.candidate {
+  grid-template-columns: auto minmax(0, 1fr) minmax(0, 1.2fr);
+}
+
+.candidate.approved {
+  background: var(--accent-soft);
+}
+
+.word-row-meaning input {
+  width: 100%;
+}
+
+@media (max-width: 560px) {
+  .word-row {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .word-row-meaning,
+  .word-status {
+    grid-column: 2;
+  }
+}
+
+.study-more {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ---------- Common Words: visual Today panel ---------- */
+
+.drill-picker {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+button.drill-tile {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 14px 6px 12px;
+  border-width: 2px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+button.drill-tile.selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.mode-glyph {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 1rem;
+  color: var(--muted);
+}
+
+.glyph-card {
+  display: inline-grid;
+  place-items: center;
+  width: 2.1em;
+  height: 2.6em;
+  border-radius: 6px;
+  border: 2px solid currentColor;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text);
+  background: var(--card);
+}
+
+.glyph-card.ko {
+  font-family: var(--font-ko);
+}
+
+.glyph-card.en {
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.drill-tile.selected .glyph-card {
+  color: var(--accent);
+}
+
+.mode-glyph.small {
+  font-size: 0.7rem;
+}
+
+.mode-glyph.small .glyph-card {
+  font-size: 0.75rem;
+  border-width: 1.5px;
+}
+
+.study-filters {
+  align-items: stretch;
+}
+
+label.select-with-icon {
+  flex: 1 1 220px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding-left: 12px;
+  color: var(--muted);
+  background: var(--card);
+}
+
+label.select-with-icon select {
+  flex: 1;
+  border: 0;
+  padding-left: 0;
+  min-height: 44px;
+  background: transparent;
+}
+
+button.chip-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  border-width: 2px;
+  color: var(--muted);
+}
+
+button.chip-toggle svg {
+  font-size: 1.15rem;
+}
+
+button.chip-toggle.mistakes.on {
+  border-color: var(--error-text);
+  background: var(--error-bg);
+  color: var(--error-text);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin: 0;
+}
+
+.stat {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: 10px 4px;
+  border-radius: 12px;
+  background: var(--stat-soft);
+  color: var(--stat);
+}
+
+.stat-due {
+  --stat: var(--accent);
+  --stat-soft: var(--accent-soft);
+}
+
+.stat-new {
+  --stat: var(--success);
+  --stat-soft: var(--success-soft);
+}
+
+.stat-mistakes {
+  --stat: var(--error-text);
+  --stat-soft: var(--error-bg);
+}
+
+.stat-started {
+  --stat: var(--muted);
+  --stat-soft: transparent;
+  border: 1px solid var(--border);
+}
+
+.stat.zero {
+  opacity: 0.45;
+}
+
+.stat-icon {
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+.stat dd {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat dt {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+button.start-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 1.15rem;
+  min-height: 54px;
+}
+
+.start-count {
+  min-width: 2em;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--accent-text);
+  color: var(--accent);
+  font-size: 0.95rem;
+}
+
+.done-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.done-card div {
+  display: grid;
+  gap: 2px;
+}
+
+.done-icon {
+  font-size: 2.4rem;
+  line-height: 1;
+  display: inline-flex;
+}
+
+.more-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 8px;
+}
+
+button.more-tile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  font-weight: 500;
+  border-width: 2px;
+  border-style: dashed;
+}
+
+.more-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 2.2em;
+  height: 2.2em;
+  border-radius: 50%;
+  font-size: 1.05rem;
+  flex: none;
+}
+
+button.more-tile.new .more-icon {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+button.more-tile.again .more-icon {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* ---------- Common Words: session ---------- */
+
+.drill-head {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.drill-count {
+  font-variant-numeric: tabular-nums;
+}
+
+.drill-end {
+  margin-left: auto;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-new {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.drill-progress {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--border);
+  overflow: hidden;
+  margin-top: -6px;
+}
+
+.drill-progress span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  border-radius: inherit;
+  transition: width 0.25s;
+}
+
+.grade-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+button.grade {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: 10px 4px 8px;
+  border-width: 2px;
+  border-color: var(--grade);
+  background: var(--grade-soft);
+  color: var(--grade);
+}
+
+button.grade:hover:not(:disabled) {
+  border-color: var(--grade);
+  filter: brightness(1.05);
+}
+
+.grade-again {
+  --grade: var(--error-text);
+  --grade-soft: var(--error-bg);
+}
+
+.grade-hard {
+  --grade: var(--caution);
+  --grade-soft: var(--caution-soft);
+}
+
+.grade-good {
+  --grade: var(--accent);
+  --grade-soft: var(--accent-soft);
+}
+
+.grade-easy {
+  --grade: var(--success);
+  --grade-soft: var(--success-soft);
+}
+
+.grade-face {
+  font-size: 1.9rem;
+  line-height: 1;
+  display: inline-flex;
+}
+
+.grade-label {
+  font-size: 0.9rem;
+}
+
+.grade-interval {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+@media (max-width: 560px) {
+  .stats {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+  .stat dt {
+    font-size: 0.7rem;
+  }
+  .drill-tile-label {
+    font-size: 0.75rem;
+  }
+}
+
+/* ---------- Rules grid ---------- */
+
+.rule-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 10px;
+  /* Later tiles fill the selected tile's row, so the expanded card sits right below that row. */
+  grid-auto-flow: dense;
+}
+
+.rule-grid > .rule-card {
+  grid-column: 1 / -1;
+}
+
+button.rule-tile {
+  position: relative;
+  display: grid;
+  justify-items: start;
+  align-content: start;
+  gap: 6px;
+  padding: 12px 12px 14px;
+  text-align: left;
+  border-width: 2px;
+  border-radius: var(--radius);
+  font-weight: 600;
+}
+
+button.rule-tile.selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.rule-tile .rule-number {
+  font-size: 0.8rem;
+}
+
+.rule-tile-example {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 6px;
+  font-family: var(--font-ko);
+  font-size: 1.3rem;
+  line-height: 1.3;
+}
+
+.rule-tile-example .from {
+  color: var(--text);
+}
+
+.rule-tile-example .arrow {
+  color: var(--muted);
+  font-size: 0.9em;
+}
+
+.rule-tile-example .to {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.rule-tile-title {
+  font-size: 0.95rem;
+  line-height: 1.25;
+}
+
+.rule-tile-ko {
+  font-family: var(--font-ko);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.rule-tile-chevron {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+.rule-tile.selected .rule-tile-chevron {
+  color: var(--accent);
+}
+
+.rule-head-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+button.rule-close {
+  min-height: 36px;
+  min-width: 36px;
+  padding: 0;
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+@media (max-width: 420px) {
+  .rule-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .rule-tile-example {
+    font-size: 1.1rem;
+  }
+}
+
+/* ---------- Word browser: compact rows, tap to expand ---------- */
+
+.word-item {
+  border-top: 1px solid var(--border);
+}
+
+.word-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+}
+
+.word-line .speak-button {
+  flex: none;
+  min-height: 36px;
+  min-width: 36px;
+  padding: 4px 8px;
+}
+
+.word-toggle {
+  cursor: pointer;
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 2.6em;
+  align-items: center;
+  gap: 12px;
+  border: 0;
+  background: transparent;
+  padding: 6px 4px;
+  text-align: left;
+  font-weight: 400;
+  border-radius: 8px;
+}
+
+.word-toggle:hover {
+  background: var(--accent-soft);
+}
+
+.word-line-korean {
+  font-family: var(--font-ko);
+  font-size: 1.2rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.word-line-pron {
+  margin-left: 6px;
+  font-size: 0.8em;
+  font-weight: 500;
+  color: var(--accent);
+}
+
+.word-line-meaning {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.word-item.open .word-line-meaning {
+  white-space: normal;
+}
+
+.word-status-icon {
+  justify-self: end;
+  display: inline-flex;
+  font-size: 1.05rem;
+  color: var(--muted);
+}
+
+.word-status-icon.later {
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.word-status-icon.new {
+  color: var(--success);
+  opacity: 0.7;
+}
+
+.word-status-icon.due {
+  color: var(--accent);
+}
+
+.word-status-icon.mistake {
+  color: var(--error-text);
+}
+
+.word-details {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  margin: 0 0 10px 52px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--accent-soft);
+}
+
+@media (max-width: 560px) {
+  .word-toggle {
+    grid-template-columns: minmax(0, 1fr) 2.6em;
+    row-gap: 2px;
+  }
+  .word-line-meaning {
+    grid-row: 2;
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+  .word-status-icon {
+    grid-row: 1 / span 2;
+    grid-column: 2;
+  }
+  .word-details {
+    margin-left: 0;
+  }
+}
+
+/* Romanization + rule tags under each word */
+
+.word-line-main {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.word-line-sub {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  min-width: 0;
+}
+
+.word-line-sub .word-rom {
+  font-size: 0.85rem;
+}
+
+.word-tags {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+/* Each rule has a hue; lightness flips for dark mode so the tint stays readable. */
+.word-tag {
+  --h: 220;
+  --tag-l: 38%;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+  color: hsl(var(--h) 55% var(--tag-l));
+  background: hsl(var(--h) 60% var(--tag-l) / 0.12);
+}
+
+@media (prefers-color-scheme: dark) {
+  .word-tag {
+    --tag-l: 74%;
+    background: hsl(var(--h) 45% var(--tag-l) / 0.14);
+  }
+}
+
+.tag-final-sounds { --h: 200; }
+.tag-double-finals { --h: 185; }
+.tag-linking { --h: 145; }
+.tag-nasalization { --h: 265; }
+.tag-liquidization { --h: 290; }
+.tag-tensification { --h: 15; }
+.tag-aspiration { --h: 35; }
+.tag-palatalization { --h: 325; }
+.tag-h-dropping { --h: 50; }
+.tag-ui,
+.tag-ye { --h: 0; --tag-l: 45%; }
+
+@media (prefers-color-scheme: dark) {
+  .tag-ui,
+  .tag-ye { --tag-l: 78%; }
+}
+
+/* Details: the full rule links read as quiet links rather than outlined buttons. */
+.word-details a.rule-chip {
+  border: 0;
+  padding: 0;
+  font-size: 0.8rem;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.word-details .word-pron {
+  gap: 4px 10px;
+}
+
+/* Tags sit under the meaning: left = how to say it, right = what it means + why it sounds that way. */
+.word-line-main .word-rom {
+  font-size: 0.85rem;
+}
+
+.word-line-right {
+  display: grid;
+  gap: 4px;
+  justify-items: start;
+  min-width: 0;
+}
+
+@media (max-width: 560px) {
+  .word-line-right {
+    grid-row: 2;
+  }
+  .word-line-right .word-line-meaning {
+    grid-row: auto;
+  }
+}
+
+/* The word is the row's toggle button: look like text, not a button. */
+button.word-line-korean {
+  justify-self: start;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  color: var(--text);
+}
+
+button.word-line-korean:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Tags are buttons now: keep the pill look. */
+button.word-tag {
+  min-height: 0;
+  border: 0;
+  cursor: help;
+}
+
+button.word-tag:hover:not(:disabled),
+button.word-tag.active {
+  background: hsl(var(--h) 60% var(--tag-l) / 0.24);
+}
+
+button.word-tag:focus-visible {
+  outline: 2px solid hsl(var(--h) 55% var(--tag-l));
+  outline-offset: 1px;
+}
+
+/* Rule summary popover: attached to its tag (pointer + the tag's colour), about the word first. */
+.rule-popover {
+  --tag-l: 42%;
+  --tint: hsl(var(--h, 220) 60% var(--tag-l));
+  position: fixed;
+  z-index: 50;
+  width: min(300px, calc(100vw - 16px));
+  padding: 12px 14px 12px 16px;
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid hsl(var(--h, 220) 50% var(--tag-l) / 0.45);
+  border-left: 4px solid var(--tint);
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+  display: grid;
+  gap: 10px;
+  font-size: 0.9rem;
+  animation: rp-in 0.12s ease-out;
+}
+
+@media (prefers-color-scheme: dark) {
+  .rule-popover {
+    --tag-l: 74%;
+  }
+}
+
+@keyframes rp-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+.rule-popover.above {
+  animation-name: rp-in-above;
+}
+
+@keyframes rp-in-above {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+/* Pointer aimed at the tag */
+.rule-popover::before {
+  content: "";
+  position: absolute;
+  left: calc(var(--arrow-x, 24px) - 7px);
+  top: -7px;
+  width: 12px;
+  height: 12px;
+  background: var(--card);
+  border-left: 1px solid hsl(var(--h, 220) 50% var(--tag-l) / 0.45);
+  border-top: 1px solid hsl(var(--h, 220) 50% var(--tag-l) / 0.45);
+  transform: rotate(45deg);
+}
+
+.rule-popover.above::before {
+  top: auto;
+  bottom: -7px;
+  transform: rotate(225deg);
+}
+
+.rule-popover p {
+  margin: 0;
+}
+
+.rp-head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+}
+
+.rp-pill {
+  padding: 1px 9px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--tint);
+  background: hsl(var(--h, 220) 60% var(--tag-l) / 0.14);
+}
+
+.rp-ko {
+  font-family: var(--font-ko);
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.rp-label {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.rp-this {
+  display: grid;
+  gap: 2px;
+}
+
+.rp-transform {
+  display: inline-flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 2px 8px;
+  font-family: var(--font-ko);
+  font-size: 1.35rem;
+  font-weight: 600;
+}
+
+.rp-arrow {
+  color: var(--muted);
+  font-size: 0.85em;
+}
+
+.rp-to {
+  color: var(--tint);
+}
+
+mark.rp-changed {
+  color: inherit;
+  background: hsl(var(--h, 220) 60% var(--tag-l) / 0.2);
+  border-radius: 4px;
+  padding: 0 1px;
+}
+
+.rp-from mark.rp-changed {
+  background: transparent;
+  text-decoration: underline;
+  text-decoration-color: hsl(var(--h, 220) 60% var(--tag-l) / 0.7);
+  text-underline-offset: 4px;
+}
+
+.rp-text {
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+/* Hangul inside the sentence: plain text, not boxed chips */
+.rp-text .ko-inline {
+  background: none;
+  padding: 0;
+  color: var(--text);
+}
+
+.rp-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.rp-also {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+}
+
+.rp-also .rp-label {
+  display: inline;
+}
+
+.rp-also [lang="ko"] {
+  font-family: var(--font-ko);
+}
+
+.rp-also .speak-button {
+  min-height: 28px;
+  min-width: 28px;
+  padding: 2px 6px;
+  font-size: 0.8rem;
+}
+
+.rp-more {
+  margin-left: auto;
+  font-size: 0.82rem;
+  font-weight: 600;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.rp-more:hover {
+  text-decoration: underline;
+}
+
+/* ---------- Rules grid: clearer selection, tile → card connection, calmer card ---------- */
+
+/* Hover is a soft tint, never the accent border (that means "open"). */
+button.rule-tile:hover:not(:disabled):not(.selected) {
+  border-color: var(--border);
+  background: color-mix(in srgb, var(--accent-soft) 45%, var(--card));
+}
+
+button.rule-tile.selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.rule-tile-example {
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+/* Inside the card: Hangul in prose is plain accent text, not boxed chips; formulas are light outlines. */
+.rule-card p .ko-inline,
+.rule-card .notes .ko-inline {
+  background: none;
+  padding: 0;
+  margin: 0;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.rule-card .formulas code {
+  background: transparent;
+  border: 1px solid var(--border);
+  font-size: 0.95rem;
+}
+
+/* ---------- Rule sheet (modal) ---------- */
+
+/* Opening: the backdrop fades in and the sheet rises. Closing plays it in reverse. */
+.sheet-backdrop {
+  animation: backdrop-in 0.2s ease-out;
+}
+
+.sheet {
+  animation: sheet-in 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.sheet-backdrop.closing {
+  animation: backdrop-out 0.2s ease-in forwards;
+  pointer-events: none;
+}
+
+.sheet-backdrop.closing .sheet {
+  animation: sheet-out 0.2s ease-in forwards;
+}
+
+@keyframes backdrop-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes backdrop-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}
+
+@keyframes sheet-out {
+  to {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}
+
+@media (min-width: 700px) {
+  @keyframes sheet-in {
+    from {
+      opacity: 0;
+      transform: translateY(12px) scale(0.98);
+    }
+  }
+  @keyframes sheet-out {
+    to {
+      opacity: 0;
+      transform: translateY(12px) scale(0.98);
+    }
+  }
+}
+
+.rule-sheet {
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 0;
+}
+
+/* The card's content sits directly in the sheet (no second card border). */
+.rule-sheet .rule-card {
+  border: 0;
+  background: none;
+  padding: 0;
+}
+
+.rule-sheet .rule-head {
+  padding-right: 44px; /* room for the close button */
+}
+
+/* Stepping to another rule: a quick cross-fade of the content. */
+.rule-sheet-body {
+  animation: rule-body-in 0.2s ease-out;
+}
+
+@keyframes rule-body-in {
+  from {
+    opacity: 0;
+    transform: translateX(8px);
+  }
+}
+
+.rule-sheet-nav {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 16px -16px 0;
+  padding: 10px 16px 14px;
+  background: var(--card);
+  border-top: 1px solid var(--border);
+}
+
+@media (min-width: 700px) {
+  .rule-sheet-nav {
+    margin: 20px -24px 0;
+    padding: 12px 24px 16px;
+  }
+}
+
+.rule-sheet-nav button {
+  flex: 1 1 0;
+  min-width: 0;
+  font-size: 0.9rem;
+}
+
+.rule-sheet-nav button:last-child {
+  text-align: right;
+}
+
+.rule-sheet-nav-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rule-sheet-nav button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rule-sheet-nav button:last-child {
+  justify-content: flex-end;
+}
+
+@media (max-width: 480px) {
+  .rule-sheet-nav-label {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet-backdrop,
+  .sheet,
+  .sheet-backdrop.closing,
+  .sheet-backdrop.closing .sheet,
+  .rule-sheet-body {
+    animation: none;
+  }
+}
+
+/* ---------- Reader: generate form ---------- */
+
+.generate-form {
+  gap: 18px;
+}
+
+.option-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+button.option-tile {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: 12px 6px 10px;
+  border-width: 2px;
+  font-weight: 600;
+  color: var(--muted);
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+button.option-tile:hover:not(:disabled):not(.selected) {
+  border-color: var(--border);
+  background: color-mix(in srgb, var(--accent-soft) 45%, var(--card));
+}
+
+button.option-tile.selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.option-icon {
+  font-size: 1.6rem;
+  line-height: 1;
+  display: inline-flex;
+  margin-bottom: 4px;
+}
+
+.option-label {
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.option-tile.selected .option-label {
+  color: var(--accent);
+}
+
+.option-hint {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.input-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-left: 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card);
+  color: var(--muted);
+  transition: border-color 0.2s;
+}
+
+.input-with-icon:focus-within {
+  border-color: var(--accent);
+}
+
+.input-with-icon input[type="text"] {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  padding-left: 0;
+  min-height: 44px;
+  background: transparent;
+  outline: none;
+}
+
+button.generate-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 52px;
+  font-size: 1.1rem;
+}
+
+.spinner {
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.reader-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 28px 16px;
+  text-align: center;
+}
+
+.reader-empty-art {
+  display: grid;
+  place-items: center;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-family: var(--font-ko);
+  font-size: 2.6rem;
+  font-weight: 700;
+}
+
+.reader-empty p {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+}
+
+@media (max-width: 420px) {
+  .option-hint {
+    font-size: 0.66rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 2s;
+  }
+}
+
+/* ---------- Header voice settings (chip + popover) ---------- */
+
+.header-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.settings-menu {
+  position: relative;
+  flex: none;
+}
+
+button.settings-chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 6px 10px 6px 12px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+button.settings-chip svg {
+  font-size: 1.05rem;
+}
+
+button.settings-chip.open {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.settings-chevron {
+  display: inline-flex;
+  transition: transform 0.2s;
+}
+
+.settings-chip.open .settings-chevron {
+  transform: rotate(180deg);
+}
+
+.settings-dot {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--caution);
+  border: 2px solid var(--card);
+}
+
+.settings-popover {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 40;
+  width: min(330px, calc(100vw - 32px));
+  display: grid;
+  gap: 14px;
+  padding: 14px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+  animation: settings-in 0.16s ease-out;
+  transform-origin: top right;
+}
+
+@keyframes settings-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+}
+
+.settings-section {
+  display: grid;
+  gap: 8px;
+}
+
+.settings-heading {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.voice-options {
+  display: grid;
+  gap: 6px;
+}
+
+button.voice-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  text-align: left;
+  border-width: 2px;
+  font-weight: 500;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+button.voice-option:hover:not(:disabled):not(.selected) {
+  border-color: var(--border);
+  background: color-mix(in srgb, var(--accent-soft) 45%, var(--card));
+}
+
+button.voice-option.selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.voice-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 2.2em;
+  height: 2.2em;
+  flex: none;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  color: var(--muted);
+  background: var(--bg);
+}
+
+.voice-option.selected .voice-icon {
+  color: var(--accent);
+  background: var(--card);
+}
+
+.voice-text {
+  display: grid;
+  gap: 1px;
+}
+
+.voice-label {
+  font-weight: 700;
+}
+
+.voice-desc {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.settings-warning {
+  margin: 0;
+}
+
+.speed-pills {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+button.speed-pill {
+  min-height: 36px;
+  padding: 4px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+
+button.speed-pill.selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.settings-foot {
+  margin: 0;
+}
+
+@media (max-width: 420px) {
+  .settings-chip-text {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .settings-popover {
+    animation: none;
+  }
+}
+
+/* ---------- Hangul chart: balanced rows, consonant/vowel colours ---------- */
+
+/* Consonants blue, vowels teal (as in many Hangul textbooks). */
+.jamo-section.is-consonant {
+  --jamo: var(--accent);
+  --jamo-soft: var(--accent-soft);
+}
+
+.jamo-section.is-vowel {
+  --jamo: var(--success);
+  --jamo-soft: var(--success-soft);
+}
+
+.jamo-section {
+  margin-top: 22px;
+}
+
+.jamo-section-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  margin-bottom: 10px;
+}
+
+.jamo-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--jamo);
+}
+
+.jamo-count {
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--jamo);
+  background: var(--jamo-soft);
+}
+
+/* Rows sized per section so nothing is left alone: 7+7, 5, 5+5, 6+5. Same tile size everywhere. */
+.jamo-grid {
+  --cols: 7;
+  grid-template-columns: repeat(var(--cols), minmax(0, 76px));
+  justify-content: start;
+  gap: 8px;
+}
+
+.basic-consonant .jamo-grid {
+  --cols: 7;
+}
+
+.double-consonant .jamo-grid,
+.basic-vowel .jamo-grid {
+  --cols: 5;
+}
+
+.compound-vowel .jamo-grid {
+  --cols: 6;
+}
+
+button.jamo-tile {
+  min-height: 86px;
+  border-radius: 12px;
+  transition: transform 0.15s, border-color 0.15s, background-color 0.15s, box-shadow 0.15s;
+}
+
+button.jamo-tile:hover:not(:disabled):not(.selected) {
+  transform: translateY(-2px);
+  border-color: var(--jamo);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+}
+
+button.jamo-tile.selected {
+  border-color: var(--jamo);
+  background: var(--jamo-soft);
+}
+
+.jamo-tile .jamo-char {
+  font-size: 2.2rem;
+  color: var(--jamo);
+}
+
+.jamo-tile .jamo-rom {
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+}
+
+/* Phones: as many equal columns as fit (tiles stretch to fill the row). */
+@media (max-width: 600px) {
+  .jamo-grid,
+  .basic-consonant .jamo-grid,
+  .double-consonant .jamo-grid,
+  .basic-vowel .jamo-grid,
+  .compound-vowel .jamo-grid {
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+  }
+  button.jamo-tile {
+    min-height: 76px;
+  }
+  .jamo-tile .jamo-char {
+    font-size: 1.9rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button.jamo-tile,
+  button.jamo-tile:hover:not(:disabled):not(.selected) {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* ---------- Reader: paragraph section ---------- */
+
+.reader {
+  display: grid;
+  gap: 4px;
+}
+
+.reader .toolbar {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+
+/* On/off chips for the romanization and translation layers */
+button.toggle-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 6px 12px 6px 6px;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  color: var(--muted);
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.chip-glyph {
+  display: inline-grid;
+  place-items: center;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 4px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  background: var(--bg);
+  color: var(--muted);
+  transition: background-color 0.2s, color 0.2s;
+}
+
+button.toggle-chip[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+button.toggle-chip[aria-pressed="true"] .chip-glyph {
+  background: var(--accent);
+  color: var(--accent-text);
+}
+
+/* Playback: a speed chip and a solid play button */
+.playback {
+  gap: 8px;
+}
+
+button.speed-chip {
+  min-height: 38px;
+  min-width: 52px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+
+button.play-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 8px 18px 8px 14px;
+  border-radius: 999px;
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-text);
+}
+
+button.play-button:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+button.play-button.playing {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.pause-icon {
+  width: 10px;
+  height: 12px;
+  border-left: 3px solid currentColor;
+  border-right: 3px solid currentColor;
+}
+
+/* Paragraph: calmer size and spacing; romanization as a quiet caption above each word */
+.korean-text {
+  font-size: clamp(1.35rem, 4.4vw, 1.75rem);
+  line-height: 2.35;
+  letter-spacing: 0.01em;
+  margin: 6px 0 0;
+}
+
+.korean-text.hide-romanization {
+  line-height: 1.8;
+}
+
+.word rt {
+  font-size: 0.46em;
+  font-weight: 500;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+  padding-bottom: 1px;
+}
+
+.word.speaking rt {
+  color: var(--accent);
+}
+
+.translation {
+  margin-top: 10px;
+}
+
+.reader-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 0;
+}
+
+.hint-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.6;
+}
+
+@media (max-width: 480px) {
+  .reader .toolbar {
+    flex-direction: row;
+    align-items: center;
+  }
+  .reader .toggles {
+    flex: 1 1 100%;
+  }
+  .reader .toggles > button.toggle-chip {
+    width: auto;
+  }
+  .reader .playback {
+    margin-left: auto;
+  }
+}
+
+/* ---------- Hangul chart: tabs + full-width tiles ---------- */
+
+.hangul-head p {
+  margin: 0 0 14px;
+}
+
+.chart-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+button.chart-tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 8px;
+  border-width: 2px;
+  color: var(--muted);
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.chart-tab.tab-consonants {
+  --tab: var(--accent);
+  --tab-soft: var(--accent-soft);
+}
+
+.chart-tab.tab-vowels {
+  --tab: var(--success);
+  --tab-soft: var(--success-soft);
+}
+
+.chart-tab.tab-blocks {
+  --tab: var(--caution);
+  --tab-soft: var(--caution-soft);
+}
+
+button.chart-tab:hover:not(:disabled):not(.selected) {
+  border-color: var(--border);
+  background: color-mix(in srgb, var(--tab-soft) 45%, var(--card));
+}
+
+button.chart-tab.selected {
+  border-color: var(--tab);
+  background: var(--tab-soft);
+  color: var(--tab);
+}
+
+.chart-tab-glyph {
+  font-family: var(--font-ko);
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--tab);
+}
+
+.chart-tab-label {
+  color: var(--text);
+}
+
+.chart-tab.selected .chart-tab-label {
+  color: var(--tab);
+}
+
+.chart-tab-count {
+  padding: 0 7px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--tab);
+  background: var(--tab-soft);
+}
+
+.chart-tab.selected .chart-tab-count {
+  background: var(--card);
+}
+
+.chart-panel {
+  animation: chart-panel-in 0.18s ease-out;
+}
+
+@keyframes chart-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+.jamo-chart .jamo-section:first-child {
+  margin-top: 0;
+}
+
+/* Tiles fill the card's width: 7 columns for consonants (7+7, 5), 6 for vowels (6+4, 6+5). */
+.jamo-chart .jamo-grid,
+.jamo-chart .basic-consonant .jamo-grid,
+.jamo-chart .double-consonant .jamo-grid,
+.jamo-chart .basic-vowel .jamo-grid,
+.jamo-chart .compound-vowel .jamo-grid {
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+}
+
+.jamo-chart.consonants .jamo-grid {
+  --cols: 7;
+}
+
+.jamo-chart.vowels .jamo-grid {
+  --cols: 6;
+}
+
+.jamo-chart button.jamo-tile {
+  min-height: 92px;
+}
+
+.jamo-chart .jamo-tile .jamo-char {
+  font-size: 2.4rem;
+}
+
+@media (max-width: 600px) {
+  .jamo-chart .jamo-grid,
+  .jamo-chart .basic-consonant .jamo-grid,
+  .jamo-chart .double-consonant .jamo-grid,
+  .jamo-chart .basic-vowel .jamo-grid,
+  .jamo-chart .compound-vowel .jamo-grid {
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+  }
+  .jamo-chart button.jamo-tile {
+    min-height: 76px;
+  }
+  .jamo-chart .jamo-tile .jamo-char {
+    font-size: 1.9rem;
+  }
+  button.chart-tab {
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 4px;
+    font-size: 0.85rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chart-panel {
+    animation: none;
+  }
+}
+
+/* "How syllable blocks work": a secondary action beside the chart title, opening a sheet. */
+.hangul-head-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+
+.hangul-head-top h2 {
+  margin-bottom: 4px;
+}
+
+button.blocks-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 4px 14px 4px 5px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+button.blocks-button:hover:not(:disabled) {
+  border-color: var(--caution);
+  color: var(--text);
+}
+
+.blocks-button-glyph {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  font-family: var(--font-ko);
+  font-weight: 700;
+  color: var(--caution);
+  background: var(--caution-soft);
+}
+
+.blocks-sheet .syllable-blocks h2 {
+  padding-right: 44px; /* room for the close button */
+}
+
+/* ---------- Google voice picker (in the header settings popover) ---------- */
+
+.settings-popover {
+  max-height: min(78vh, 640px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.voice-picker {
+  display: grid;
+  gap: 8px;
+}
+
+.voice-picker p {
+  margin: 0;
+}
+
+.family-pills {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+button.family-pill {
+  min-height: 32px;
+  padding: 4px 2px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+button.family-pill.selected {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.voice-chips {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.voice-chips.named {
+  grid-template-columns: repeat(3, 1fr);
+  max-height: 168px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+button.voice-chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 36px;
+  padding: 4px 6px;
+  font-size: 0.85rem;
+  border-width: 2px;
+}
+
+button.voice-chip.selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.voice-gender {
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+.voice-chip.female .voice-gender {
+  color: hsl(330 60% 60%);
+  opacity: 1;
+}
+
+.voice-chip.male .voice-gender {
+  color: hsl(205 70% 55%);
+  opacity: 1;
+}
+
+.voice-default {
+  position: absolute;
+  top: -8px;
+  right: -4px;
+  padding: 0 5px;
+  border-radius: 999px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+
+.voice-preview-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.voice-current {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+button.voice-preview {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  flex: none;
+}
+
+/* Rule tile example: break after the arrow when it doesn't fit (좋아요 → / [조아요]),
+   but never inside a word or formula. */
+.rule-tile-example {
+  flex-wrap: wrap;
+  white-space: normal;
+  max-width: 100%;
+}
+
+.rule-tile-example > span {
+  white-space: nowrap;
+}
+
+button.rule-tile {
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* Today: the stats/Start area is scoped to the selected drill + filters, and re-animates on change. */
+.mode-scope {
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+  margin: 0 -4px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  animation: scope-in 0.35s ease-out;
+}
+
+@keyframes scope-in {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+  40% {
+    opacity: 1;
+    transform: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+  100% {
+    border-color: var(--border);
+    box-shadow: none;
+  }
+}
+
+.mode-scope-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.mode-scope-label strong {
+  color: var(--text);
+}
+
+.mode-scope-label .mode-glyph {
+  color: var(--accent);
+}
+
+.mode-scope-label .glyph-card {
+  color: var(--accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mode-scope {
+    animation: none;
+  }
+}
+
+/* Browse: level badge above the status icon in each row's right column */
+.word-side {
+  justify-self: end;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+}
+
+.word-toggle {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 3.2em;
+}
+
+.level-badge {
+  padding: 0 6px;
+  border-radius: 6px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.6;
+  font-family: var(--font-ko);
+  white-space: nowrap;
+}
+
+.level-badge.band-beginner {
+  color: var(--success);
+  background: var(--success-soft);
+}
+
+.level-badge.band-intermediate {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.level-badge.band-advanced {
+  color: var(--caution);
+  background: var(--caution-soft);
+}
+
+@media (max-width: 560px) {
+  .word-toggle {
+    grid-template-columns: minmax(0, 1fr) 3.2em;
+  }
+  .word-side {
+    grid-row: 1 / span 2;
+    grid-column: 2;
+  }
+}
+
+/* The status icon now sits inside .word-side; undo the older phone rule that placed it in the row grid. */
+@media (max-width: 560px) {
+  .word-side .word-status-icon {
+    grid-row: auto;
+    grid-column: auto;
+  }
+}
+
+/* Reader: the form collapses into a summary bar once a paragraph exists */
+.reader-summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 8px 8px 10px;
+  animation: summary-in 0.2s ease-out;
+}
+
+@keyframes summary-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+button.summary-settings {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  border: 0;
+  background: transparent;
+  padding: 6px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.92rem;
+  border-radius: 10px;
+}
+
+button.summary-settings:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--accent-soft) 45%, var(--card));
+}
+
+.summary-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.summary-icon {
+  display: inline-flex;
+  font-size: 1.1rem;
+  color: var(--accent);
+}
+
+.summary-topic [lang="ko"] {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 12em;
+}
+
+.summary-edit {
+  margin-left: auto;
+  font-size: 0.82rem;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+button.summary-new {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  flex: none;
+}
+
+.generate-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.generate-actions .generate-button {
+  flex: 1;
+}
+
+button.generate-cancel {
+  min-height: 52px;
+}
+
+@media (max-width: 480px) {
+  .summary-edit {
+    flex-basis: 100%;
+    margin-left: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reader-summary {
+    animation: none;
+  }
+}
+
+/* Category / mistakes filter: only the numbers that changed tick in (the drill switch animates the whole box). */
+.stat-value {
+  animation: value-tick 0.25s ease-out;
+}
+
+@keyframes value-tick {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+/* Category dropdown: focus ring on the whole icon+select box, not just the select. */
+label.select-with-icon {
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+label.select-with-icon:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+  color: var(--accent);
+}
+
+label.select-with-icon select:focus,
+label.select-with-icon select:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stat-value {
+    animation: none;
+  }
+}
+
+/* Smooth height changes (Reader form ↔ summary bar, translation) */
+.animated-height {
+  overflow: hidden;
+  transition: height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  /* room for focus rings/shadows that overflow would clip */
+  margin: -4px;
+  padding: 4px;
+  box-sizing: content-box;
+}
+
+/* Content that appears in the Reader fades in rather than popping. */
+.reader-enter,
+.generate-form {
+  animation: reader-enter 0.3s ease-out;
+}
+
+@keyframes reader-enter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+.reader-summary {
+  animation-duration: 0.3s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animated-height {
+    transition: none;
+  }
+  .reader-enter,
+  .generate-form {
+    animation: none;
+  }
+}
+
+/* Voice picker: no nested scrolling; long Chirp names fit their chips. */
+.settings-popover {
+  width: min(380px, calc(100vw - 32px));
+}
+
+.voice-chips.named {
+  max-height: none;
+  overflow: visible;
+  padding-right: 0;
+}
+
+button.voice-chip {
+  min-width: 0;
+  padding: 4px;
+  font-size: 0.8rem;
+}
+
+.voice-chips.named button.voice-chip {
+  justify-content: space-between;
+  padding: 4px 8px;
+}
+
+.voice-chip .voice-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gender-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+button.gender-option {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+}
+
+button.gender-option.selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.gender-option.female span[aria-hidden] {
+  color: hsl(330 60% 60%);
+}
+
+.gender-option.male span[aria-hidden] {
+  color: hsl(205 70% 55%);
+}
+
+.gender-count {
+  padding: 0 6px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: var(--bg);
+  color: var(--muted);
+}
+
+/* A new paragraph: the card's border glows briefly, then settles (re-plays because the card is keyed). */
+.reader.reader-new {
+  scroll-margin-top: 12px;
+  animation:
+    reader-enter 0.3s ease-out,
+    reader-glow 1.4s ease-out;
+}
+
+@keyframes reader-glow {
+  0%,
+  35% {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+  100% {
+    border-color: var(--border);
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reader.reader-new {
+    animation: none;
+  }
+}
+
+/* Summary bar: Play is the only filled button; New is a soft tinted pill, Change an outlined pill. */
+button.summary-new {
+  min-height: 38px;
+  padding: 6px 16px 6px 12px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 700;
+}
+
+button.summary-new:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.summary-edit {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--muted);
+  transition: border-color 0.2s, color 0.2s;
+}
+
+button.summary-settings:hover .summary-edit {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+@media (max-width: 480px) {
+  .summary-edit {
+    flex-basis: auto;
+    margin-left: auto;
+  }
+}
+
+/* Romanization eases in and out: the captions grow from nothing while the lines open up. */
+.korean-text {
+  transition: line-height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.word rt {
+  transition: font-size 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.25s ease;
+}
+
+.hide-romanization rt {
+  display: revert;
+  font-size: 0;
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .korean-text,
+  .word rt {
+    transition: none;
+  }
+}
+
+/* "Keep current": a quiet way out, not a rival to Generate. */
+button.generate-cancel {
+  border-color: transparent;
+  background: transparent;
+  color: var(--muted);
+  padding: 10px 14px;
+}
+
+button.generate-cancel:hover:not(:disabled) {
+  border-color: var(--border);
+  color: var(--text);
+}
+
+/* Word popover: fades and grows in from the word instead of appearing in one frame. */
+.word-popover {
+  transform-origin: top center;
+  animation: word-pop-in 0.16s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes word-pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.96);
+  }
+}
+
+.word {
+  transition: background-color 0.15s, color 0.15s, outline-color 0.15s, box-shadow 0.15s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .word-popover {
+    animation: none;
+  }
+}
+
+.word-popover-actions button.playing {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* Buttons keep one size whatever they show (no jitter when Play becomes Pause, etc.). */
+.stable-label {
+  display: inline-grid;
+}
+
+.stable-label > span {
+  grid-area: 1 / 1;
+  visibility: hidden;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.stable-label > span.on {
+  visibility: visible;
+}
+
+/* A fixed slot for an icon that swaps (▶ / ❚❚ / ■ / 🔊 / spinner). */
+.icon-slot {
+  display: inline-grid;
+  place-items: center;
+  width: 1.15em;
+  height: 1.15em;
+  flex: none;
+}
+
+.icon-slot svg,
+.icon-slot .spinner {
+  width: 1em;
+  height: 1em;
+}
+
+.word-popover-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Speed chip: same width for 1x and 0.75x. */
+button.speed-chip {
+  width: 4.4em;
+  min-width: 0;
+  padding: 4px 0;
+  text-align: center;
+}
+
+/* ---------- Word popover (Reader): attached to its word, meaning first ---------- */
+
+.word-popover {
+  width: max-content;
+  min-width: 220px;
+  max-width: min(300px, 100%);
+  padding: 12px 12px 6px 14px;
+  display: grid;
+  gap: 4px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--card);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+}
+
+.word-popover.above {
+  transform-origin: bottom center;
+}
+
+/* Pointer aimed at the word */
+.word-popover::before {
+  content: "";
+  position: absolute;
+  left: calc(var(--arrow-x, 24px) - 7px);
+  top: -7px;
+  width: 12px;
+  height: 12px;
+  background: var(--card);
+  border-left: 1px solid var(--border);
+  border-top: 1px solid var(--border);
+  transform: rotate(45deg);
+}
+
+.word-popover.above::before {
+  top: auto;
+  bottom: -7px;
+  transform: rotate(225deg);
+}
+
+.wp-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.wp-word {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 2px 8px;
+  min-width: 0;
+}
+
+.wp-korean {
+  font-family: var(--font-ko);
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.wp-rom {
+  font-size: 0.82rem;
+  font-style: italic;
+  color: var(--muted);
+}
+
+button.wp-speak {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  min-height: 0;
+  padding: 0;
+  border-radius: 50%;
+  border: 0;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 1.05rem;
+}
+
+button.wp-speak:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+button.wp-speak.playing {
+  background: var(--accent);
+  color: var(--accent-text);
+}
+
+.stop-icon {
+  width: 0.7em;
+  height: 0.7em;
+  border-radius: 2px;
+  background: currentColor;
+}
+
+.wp-meaning {
+  margin: 0 0 6px;
+  font-size: 1.05rem;
+  line-height: 1.4;
+}
+
+button.wp-play-from {
+  justify-self: stretch;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  margin: 0 -6px 0 -8px;
+  padding: 6px 8px;
+  border: 0;
+  border-top: 1px solid var(--border);
+  border-radius: 0 0 10px 10px;
+  background: transparent;
+  color: var(--accent);
+  font-size: 0.88rem;
+}
+
+button.wp-play-from:hover:not(:disabled) {
+  background: var(--accent-soft);
+}
+
+/* ---------- Sentence highlighting: Korean ↔ translation ---------- */
+
+.word-slot {
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+
+.word-slot.in-sentence {
+  background: color-mix(in srgb, var(--accent-soft) 70%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-soft) 70%, transparent);
+}
+
+.tr-sentence {
+  border-radius: 4px;
+  cursor: default;
+  transition: background-color 0.2s, box-shadow 0.2s, color 0.2s;
+}
+
+.tr-sentence.hl {
+  background: var(--card);
+  box-shadow: 0 0 0 2px var(--card);
+  color: var(--accent);
+}
+
+/* During playback the sentence being read is underlined in the translation. */
+.tr-sentence.playing {
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .word-slot,
+  .tr-sentence {
+    transition: none;
+  }
+}
+
+/* Sentence tint is lighter, and the word under the pointer (or being spoken / selected) stays clearly
+   visible inside it: stronger background plus a thin outline. */
+.word-slot.in-sentence {
+  background: color-mix(in srgb, var(--accent-soft) 45%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-soft) 45%, transparent);
+}
+
+.in-sentence .word.clickable:hover:not(.speaking),
+.in-sentence .word.speaking,
+.in-sentence .word.selected {
+  background: var(--accent-soft);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+/* ---------- Sentence link: one highlighter-pen colour on both sides ---------- */
+
+:root {
+  --marker: color-mix(in srgb, var(--caution) 24%, transparent);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --marker: color-mix(in srgb, var(--caution) 26%, transparent);
+  }
+}
+
+/* A continuous marker stroke across the sentence (spaces included), not separate word boxes. */
+.word-slot,
+.word-slot.in-sentence {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.word-slot.in-sentence {
+  background: var(--marker);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* The same marker on the English sentence; text keeps its normal colour. */
+.tr-sentence.hl {
+  background: var(--marker);
+  box-shadow: none;
+  color: inherit;
+  border-radius: 3px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* Calm, neutral translation box so the marker reads clearly (the blue edge stays). */
+.translation {
+  background: var(--bg);
+}
+
+/* Blue is for the word you're on: it stands out against the amber marker. */
+.in-sentence .word.clickable:hover:not(.speaking),
+.in-sentence .word.speaking,
+.in-sentence .word.selected {
+  background: var(--accent-soft);
+  box-shadow: 0 0 0 1px var(--accent);
+  border-radius: 6px;
+}
+
+/* ======================================================================
+   Mobile friendliness
+   ====================================================================== */
+
+/* Taps: no grey flash, no double-tap zoom delay on controls. */
+button,
+a,
+[role="button"],
+select,
+summary {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Panels use the *visible* viewport height (dvh), so their bottoms don't hide behind phone browser bars. */
+.sheet {
+  max-height: 88dvh;
+}
+
+.settings-popover {
+  max-height: min(78dvh, 640px);
+}
+
+/* Bottom sheets clear the iPhone home indicator. */
+.sheet {
+  padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+}
+
+/* iOS zooms into any input under 16px: keep form fields at 16px on phones. */
+@media (max-width: 700px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+/* Touch screens: hover effects would "stick" after a tap, so turn them off where there's no hover. */
+@media (hover: none) {
+  button.jamo-tile:hover:not(:disabled):not(.selected) {
+    transform: none;
+    box-shadow: none;
+    border-color: var(--border);
+  }
+  button.rule-tile:hover:not(:disabled):not(.selected),
+  button.option-tile:hover:not(:disabled):not(.selected),
+  button.chart-tab:hover:not(:disabled):not(.selected),
+  button.voice-option:hover:not(:disabled):not(.selected),
+  .word-toggle:hover,
+  button.summary-settings:hover:not(:disabled) {
+    background: transparent;
+  }
+  button.rule-tile:hover:not(:disabled):not(.selected),
+  button.option-tile:hover:not(:disabled):not(.selected),
+  button.chart-tab:hover:not(:disabled):not(.selected),
+  button.voice-option:hover:not(:disabled):not(.selected) {
+    background: var(--card);
+  }
+  button:hover:not(:disabled) {
+    border-color: var(--border);
+  }
+  button.selected:hover,
+  button[aria-pressed="true"]:hover,
+  button.primary:hover:not(:disabled),
+  button.play-button:hover:not(:disabled) {
+    border-color: var(--accent);
+  }
+}
+
+/* Touch screens: rule tags are small pills; give them a comfortable tap area without changing their look. */
+@media (pointer: coarse) {
+  button.word-tag {
+    position: relative;
+  }
+  button.word-tag::after {
+    content: "";
+    position: absolute;
+    inset: -8px -3px;
+  }
+}
+
+/* Settings: a bottom sheet on phones (slides up, dimmed background); a dropdown on wider screens. */
+.settings-backdrop,
+.settings-sheet-head {
+  display: none;
+}
+
+@media (max-width: 560px) {
+  .settings-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 39;
+    background: rgb(0 0 0 / 0.45);
+    animation: backdrop-in 0.2s ease-out;
+  }
+  .settings-popover {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: auto;
+    width: 100%;
+    max-height: 85dvh;
+    border-radius: 18px 18px 0 0;
+    padding: 8px 16px calc(18px + env(safe-area-inset-bottom, 0px));
+    transform-origin: bottom center;
+    animation: sheet-in 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .settings-sheet-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: -8px;
+    margin: -8px -16px 0;
+    padding: 12px 16px 8px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    z-index: 1;
+  }
+  .settings-sheet-title {
+    font-weight: 700;
+  }
+  button.settings-sheet-close {
+    min-height: 36px;
+    min-width: 36px;
+    padding: 0;
+    font-size: 1.4rem;
+    line-height: 1;
+  }
+  /* Voice chips: two columns of names fit a phone better than three. */
+  .voice-chips.named {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Add words: suggestions stack on phones (word, then meaning) instead of three cramped columns. */
+@media (max-width: 560px) {
+  .candidate {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .candidate .word-row-meaning {
+    grid-column: 2;
+  }
+}
+
+/* Reader summary bar on very narrow phones: keep it to one tidy row. */
+@media (max-width: 400px) {
+  .summary-edit-text {
+    display: none;
+  }
+  .summary-edit {
+    padding: 0 10px;
+  }
+  .reader-summary {
+    gap: 6px;
+  }
+  button.summary-settings {
+    gap: 4px 10px;
+    font-size: 0.85rem;
+  }
+  /* Reader toolbar chips: the glyphs (Aa / EN) carry the meaning. */
+  button.toggle-chip {
+    padding-right: 10px;
+    font-size: 0.82rem;
+  }
+}
+
+/* Very narrow phones (≤ 360px): a little less padding around cards gives the content room. */
+@media (max-width: 360px) {
+  .app {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  .card {
+    padding: 14px 12px;
+  }
+}
+
+@media (hover: none) {
+  button.grade:hover:not(:disabled) {
+    border-color: var(--grade);
+  }
+  button.settings-chip.open:hover:not(:disabled) {
+    border-color: var(--accent);
+  }
+}
+
+/* ---------- Phone layout fixes (from a 400px screenshot) ---------- */
+
+/* Tabs: always stack Korean over English below 520px, so all four match. */
+@media (max-width: 520px) {
+  .nav a {
+    padding: 7px 2px;
+    font-size: 0.85rem;
+    line-height: 1.25;
+  }
+  .nav a [lang="ko"] {
+    display: block;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Reader toolbar: one row. The chips shrink to their glyphs (Aa / EN), which show on/off by colour. */
+  .reader .toolbar {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+  .reader .toggles {
+    flex: 0 1 auto;
+    flex-wrap: nowrap;
+  }
+  .reader .toggles > button.toggle-chip {
+    width: auto;
+    padding: 5px;
+  }
+  .reader .toggle-chip .chip-label {
+    display: none;
+  }
+  .reader .playback {
+    margin-left: auto;
+    flex: none;
+  }
+  .reader .playback > button {
+    flex: none;
+  }
+
+  /* Reader summary: one row. Change becomes a pencil icon right after the settings. */
+  .reader-summary {
+    gap: 8px;
+  }
+  button.summary-settings {
+    flex-wrap: wrap;
+    gap: 4px 10px;
+  }
+  .summary-edit {
+    flex-basis: auto;
+    margin-left: 0;
+    min-height: 32px;
+    padding: 0 8px;
+  }
+  .summary-edit-text {
+    display: none;
+  }
+  button.summary-new {
+    padding: 6px 12px 6px 10px;
+  }
+}
+
+/* ---------- Sheets on phones: grab bar, round close button, compact rule navigation ---------- */
+
+/* A round, lighter close button in every sheet. */
+button.sheet-close {
+  min-height: 0;
+  min-width: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border-color: transparent;
+  background: var(--bg);
+  color: var(--muted);
+  font-size: 1.3rem;
+}
+
+button.sheet-close:hover:not(:disabled) {
+  color: var(--text);
+  border-color: var(--border);
+}
+
+@media (max-width: 699px) {
+  /* Grab bar: the usual cue that this is a bottom sheet. */
+  .sheet {
+    padding-top: 26px;
+  }
+  .sheet::before {
+    content: "";
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    width: 40px;
+    height: 4px;
+    margin-left: -20px;
+    border-radius: 999px;
+    background: var(--border);
+  }
+  button.sheet-close {
+    top: 14px;
+    right: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Rule navigation: (←)   3 / 10   (→) */
+  .rule-sheet-nav {
+    justify-content: center;
+    gap: 20px;
+  }
+  .rule-sheet-nav button {
+    flex: none;
+    width: 44px;
+    height: 44px;
+    min-height: 0;
+    padding: 0;
+    border-radius: 50%;
+    justify-content: center;
+  }
+  .rule-sheet-nav button:last-child {
+    justify-content: center;
+  }
+  .rule-nav-arrow {
+    font-size: 1.15rem;
+  }
+  .rule-nav-count {
+    font-variant-numeric: tabular-nums;
+    min-width: 4em;
+    text-align: center;
+  }
+}
+
+/* The rule sheet's navigation bar sits flush at the bottom (only the home-indicator inset below it). */
+.sheet.rule-sheet {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ---------- Words › Today on phones ---------- */
+@media (max-width: 480px) {
+  /* Drill tiles: smaller mini-flashcards so all three fit. */
+  .drill-picker {
+    gap: 6px;
+  }
+  button.drill-tile {
+    min-width: 0;
+    padding: 10px 2px 8px;
+    gap: 6px;
+  }
+  .drill-tile .mode-glyph {
+    font-size: 0.82rem;
+    gap: 2px;
+  }
+  .drill-tile .glyph-card {
+    border-width: 1.5px;
+  }
+  .drill-tile-label {
+    font-size: 0.72rem;
+    line-height: 1.25;
+  }
+
+  /* Filters on one row: dropdown, then a compact "✕ Mistakes" chip. */
+  .study-filters {
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+  label.select-with-icon {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  label.select-with-icon select {
+    min-width: 0;
+    text-overflow: ellipsis;
+  }
+  button.chip-toggle {
+    flex: none;
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
+  .chip-long {
+    display: none;
+  }
+
+  /* No box inside the box: the stats area drops its frame (the label line and switch glow stay). */
+  .mode-scope {
+    margin: 0;
+    padding: 0;
+    border-color: transparent;
+    gap: 10px;
+  }
+  @keyframes scope-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  }
+  .stats {
+    gap: 6px;
+  }
+  .stat {
+    padding: 8px 2px;
+  }
+}
+
+/* Reader summary at ≤ 400px: keep the word "Regenerate" (an icon alone is ambiguous) but drop its icon,
+   and tighten the settings so the pencil stays on the same line. */
+@media (max-width: 400px) {
+  button.summary-new .icon-slot {
+    display: none;
+  }
+  button.summary-new {
+    padding: 6px 12px;
+    font-size: 0.88rem;
+  }
+  button.summary-settings {
+    flex-wrap: nowrap;
+    gap: 8px;
+    padding: 4px;
+  }
+  .summary-item {
+    gap: 4px;
+    white-space: nowrap;
+  }
+  .summary-icon {
+    font-size: 0.95rem;
+  }
+  .summary-edit {
+    flex: none;
+    min-height: 30px;
+    padding: 0 7px;
+  }
+  /* A topic, if set, is the part that gives way. */
+  .summary-topic {
+    min-width: 0;
+    overflow: hidden;
+  }
+}
+
+/* ---------- Reader: loading state while the audio is fetched and analysed ---------- */
+
+/* The toolbar's divider becomes an indeterminate progress bar. */
+.reader .toolbar {
+  position: relative;
+}
+
+.reader .toolbar.loading::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  background-size: 40% 100%;
+  background-repeat: no-repeat;
+  animation: toolbar-loading 1.1s ease-in-out infinite;
+}
+
+@keyframes toolbar-loading {
+  from {
+    background-position: -40% 0;
+  }
+  to {
+    background-position: 140% 0;
+  }
+}
+
+/* The button: soft (not the solid "playing" look) until sound starts. */
+button.play-button.loading {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reader .toolbar.loading::after {
+    animation: none;
+    background: var(--accent);
+    opacity: 0.5;
+  }
+}
+
+/* ---------- Audio buttons: loading state (pressed, sound not started yet) ---------- */
+
+button.speak-button.loading,
+button.wp-speak.loading {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* The spinner in speaker buttons matches the icon's size, so the button never changes size. */
+.speak-icon .spinner,
+.wp-speak .spinner,
+.voice-preview .spinner {
+  width: 0.9em;
+  height: 0.9em;
+  border-width: 2px;
+}

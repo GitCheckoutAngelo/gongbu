@@ -1,0 +1,31 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "gongbu",
+  "main": "./worker/index.ts",
+  "compatibility_date": "2026-10-01",
+  // The built frontend is served as static assets; /api/* goes to the Worker first.
+  // "single-page-application" serves index.html for /hangul, /rules, etc.
+  "assets": {
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
+  },
+  // Non-secret settings. Secrets (ANTHROPIC_API_KEY, GOOGLE_TTS_API_KEY) are NOT here:
+  // set them with `npx wrangler secret put <NAME>` (production) or in .dev.vars (local dev).
+  "vars": {
+    "PARAGRAPH_PROVIDER": "claude",
+    "ROMANIZER_PROVIDER": "koroman",
+    "TTS_PROVIDER": "google_cloud",
+    "WORD_SUGGESTER_PROVIDER": "claude",
+    // Exact word timings for highlighting via Google Speech-to-Text ("none" to turn off).
+    "ALIGNER_PROVIDER": "google_stt",
+    "ANTHROPIC_MODEL": "claude-haiku-5-5",
+    "GOOGLE_TTS_VOICE": "ko-KR-Standard-A"
+  },
+  // Per-caller limits on the endpoints that cost money (see worker/rateLimit.ts). Period is 10 or 60 seconds.
+  // namespace_id is any number unique within your Cloudflare account.
+  "ratelimits": [
+    { "name": "AI_RATE_LIMITER", "namespace_id": "1001", "simple": { "limit": 20, "period": 60 } },
+    { "name": "TTS_RATE_LIMITER", "namespace_id": "1002", "simple": { "limit": 60, "period": 60 } }
+  ],
+  "observability": { "enabled": true }
+}
