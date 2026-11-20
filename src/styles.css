@@ -8603,3 +8603,10 @@ button.basics-step .basics-number {
   color: var(--role);
   transition: none;
 }
+
+/* Grammar's Sentence basics / Patterns views: the same spacing as the page around them. */
+.grammar-view {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}

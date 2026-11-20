@@ -478,5 +478,14 @@ function BasicsSteps() {
 
 /** /grammar: sentence basics; /grammar/patterns: the pattern reference (tabs in the Layout switch them). */
 export function GrammarPage({ view }: { view: "basics" | "patterns" }) {
-  return view === "patterns" ? <PatternReference /> : <BasicsSteps />;
+  // Keyed by view, so switching tabs slides the new one in (Patterns from the right, as in the tab
+  // order), the same way the Reader switches modes.
+  return (
+    <div
+      key={view}
+      className={`grammar-view mode-pane from-${view === "patterns" ? "right" : "left"}`}
+    >
+      {view === "patterns" ? <PatternReference /> : <BasicsSteps />}
+    </div>
+  );
 }
