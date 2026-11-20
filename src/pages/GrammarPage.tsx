@@ -388,8 +388,8 @@ function BasicsSteps() {
     if (Math.abs(now - was) < 2) return;
     el.style.overflow = "clip";
     const anim = el.animate([{ height: `${was}px` }, { height: `${now}px` }], {
-      duration: 320,
-      easing: "cubic-bezier(0.2, 0.8, 0.2, 1)",
+      duration: 420,
+      easing: "cubic-bezier(0.4, 0, 0.2, 1)",
     });
     anim.onfinish = anim.oncancel = () => {
       el.style.overflow = "";

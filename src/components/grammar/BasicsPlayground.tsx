@@ -95,8 +95,6 @@ export function MainPin() {
 function TileView({
   tile,
   flip,
-  selected,
-  onClick,
   drag,
   main,
   misplaced,
@@ -108,11 +106,11 @@ function TileView({
   misplaced?: boolean;
   /** Stable id for the swap animation. */
   flip: string;
-  selected?: boolean;
-  onClick?: () => void;
-  /** Pointer handlers and the offset while it's being dragged. */
+  /** Pointer handlers and the offset while it's being dragged (tapping only shows the bubble). */
   drag?: {
     onPointerDown: (e: React.PointerEvent<HTMLElement>) => void;
+    /** ← / → move the word one place, for keyboards. */
+    onKeyDown: (e: React.KeyboardEvent<HTMLElement>) => void;
     offset: { x: number; y: number } | null;
   };
 }) {
@@ -139,16 +137,16 @@ function TileView({
       <GlossTip ko={tile.ko} entry={tile.tip} />
     </>
   );
-  return onClick ? (
+  return drag ? (
     <button
       type="button"
-      className={`breakdown-part has-tip play-tile role-${tile.role}${selected ? " selected" : ""}${drag?.offset ? " dragging" : ""}${misplaced ? " misplaced" : ""}`}
-      aria-pressed={selected}
+      className={`breakdown-part has-tip play-tile role-${tile.role}${drag.offset ? " dragging" : ""}${misplaced ? " misplaced" : ""}`}
+      aria-label={`${tile.ko}, ${tile.gloss}. Drag, or press the left and right arrow keys, to move it.`}
       data-flip={flip}
-      onClick={onClick}
-      onPointerDown={drag?.onPointerDown}
+      onPointerDown={drag.onPointerDown}
+      onKeyDown={drag.onKeyDown}
       style={
-        drag?.offset
+        drag.offset
           ? {
               transform: `translate(${drag.offset.x}px, ${drag.offset.y}px)`,
             }
@@ -408,7 +406,6 @@ function OrderPlay({ listen }: { listen: Listen }) {
   const chosen = ORDER_SENTENCES[which];
   const main = chosen.tiles[chosen.tiles.length - 1];
   const [tiles, setTiles] = useState(chosen.tiles);
-  const [picked, setPicked] = useState<number | null>(null);
   const [moved, setMoved] = useState(false);
   const [drag, setDrag] = useState<{
     from: number;
@@ -418,7 +415,6 @@ function OrderPlay({ listen }: { listen: Listen }) {
   const reset = (to = which) => {
     setWhich(to);
     setTiles(ORDER_SENTENCES[to].tiles);
-    setPicked(null);
     setMoved(false);
   };
   const mainLast = tiles[tiles.length - 1] === main;
@@ -427,16 +423,16 @@ function OrderPlay({ listen }: { listen: Listen }) {
   const startFrom = useFlip(row, [tiles]);
   useNudge(row);
 
-  /** Tap one word, then another, to swap them (also works without a mouse). */
-  const tap = (i: number) => {
-    if (picked === null) return setPicked(i);
-    if (picked !== i) {
-      const next = [...tiles];
-      [next[picked], next[i]] = [next[i], next[picked]];
-      setTiles(next);
-      setMoved(true);
-    }
-    setPicked(null);
+  /** Keyboard: ← / → move the focused word one place (and keep it focused). */
+  const nudge = (i: number) => (e: React.KeyboardEvent<HTMLElement>) => {
+    const to =
+      e.key === "ArrowLeft" ? i - 1 : e.key === "ArrowRight" ? i + 1 : -1;
+    if (to < 0 || to >= tiles.length) return;
+    e.preventDefault();
+    const next = [...tiles];
+    [next[i], next[to]] = [next[to], next[i]];
+    setTiles(next);
+    setMoved(true);
   };
 
   /** Press and drag a word; let go and it moves to where the line shows. */
@@ -451,10 +447,7 @@ function OrderPlay({ listen }: { listen: Listen }) {
       const x = ev.clientX - sx;
       const y = ev.clientY - sy;
       if (!dragging && Math.hypot(x, y) < 6) return;
-      if (!dragging) {
-        dragging = true;
-        setPicked(null);
-      }
+      dragging = true;
       slot = row.current
         ? nearestSlot(row.current, from, ev.clientX, ev.clientY)
         : null;
@@ -465,11 +458,6 @@ function OrderPlay({ listen }: { listen: Listen }) {
       window.removeEventListener("pointerup", up);
       window.removeEventListener("pointercancel", up);
       if (!dragging) return;
-      // The click that follows a drag shouldn't count as a tap.
-      el.addEventListener("click", (c) => c.stopPropagation(), {
-        capture: true,
-        once: true,
-      });
       startFrom(tiles[from].ko, el.getBoundingClientRect());
       setDrag(null);
       if (slot) {
@@ -505,7 +493,7 @@ function OrderPlay({ listen }: { listen: Listen }) {
       </div>
       <p className="play-hint small muted">
         Whatever the sentence type, its main word goes last. Drag a word to a
-        new spot (or tap two words to swap them), and try moving{" "}
+        new spot (tap a word for its meaning), and try moving{" "}
         <span lang="ko">{main.ko}</span>, the main word, too.
       </p>
       <div className="breakdown-parts play-drag-row" ref={row}>
@@ -514,12 +502,11 @@ function OrderPlay({ listen }: { listen: Listen }) {
             key={t.ko}
             flip={t.ko}
             tile={t}
-            selected={picked === i}
-            onClick={() => tap(i)}
             main={t === main}
             misplaced={t === main && !mainLast}
             drag={{
               onPointerDown: startDrag(i),
+              onKeyDown: nudge(i),
               offset: drag?.from === i ? drag.offset : null,
             }}
           />

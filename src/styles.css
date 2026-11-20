@@ -7466,6 +7466,8 @@ button.pattern-row {
 .breakdown-parts {
   display: flex;
   flex-wrap: wrap;
+  /* Tiles keep their own height: a short caption mustn't stretch the Korean box. */
+  align-items: flex-start;
   gap: 8px;
 }
 .breakdown-parts.one-word {
@@ -7476,6 +7478,7 @@ button.pattern-row {
   --role-soft: var(--accent-soft);
   display: grid;
   gap: 3px;
+  align-content: start;
   justify-items: start;
 }
 .breakdown-ko {
@@ -8299,16 +8302,45 @@ button.basics-step[aria-current="step"] .basics-number {
   color: var(--accent-text);
 }
 @media (max-width: 560px) {
-  /* Phones: just the numbers, the current step with its name. */
+  /* Phones: the other steps are just their numbers; the current one fills the rest of the row
+     with its name. Width and name ease in and out as the step changes. */
   .basics-steps {
-    grid-template-columns: repeat(4, auto);
-    justify-content: start;
+    display: flex;
+  }
+  button.basics-step {
+    flex: 0 0 auto;
+    min-width: 44px;
+    gap: 0;
+    transition:
+      flex-grow 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+      background-color 0.25s ease,
+      border-color 0.25s ease,
+      color 0.25s ease;
+  }
+  button.basics-step[aria-current="step"] {
+    flex-grow: 1;
   }
   button.basics-step .basics-step-label {
-    display: none;
+    max-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    opacity: 0;
+    transition:
+      max-width 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+      opacity 0.2s ease,
+      margin 0.35s ease;
   }
   button.basics-step[aria-current="step"] .basics-step-label {
-    display: inline;
+    max-width: 10em;
+    margin-left: 8px;
+    opacity: 1;
+    transition-delay: 0s, 0.1s, 0s;
+  }
+}
+@media (max-width: 560px) and (prefers-reduced-motion: reduce) {
+  button.basics-step,
+  button.basics-step .basics-step-label {
+    transition: none;
   }
 }
 
@@ -8563,9 +8595,16 @@ button.listen-button .spinner {
 button.basics-step,
 button.basics-step .basics-number {
   transition:
+    flex-grow 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
     background-color 0.25s ease,
     border-color 0.25s ease,
     color 0.25s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  button.basics-step,
+  button.basics-step .basics-number {
+    transition: none;
+  }
 }
 
 /* The reading under a table's Korean (an ending: -어요 / -eoyo). */
