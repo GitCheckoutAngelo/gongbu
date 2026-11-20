@@ -13,6 +13,11 @@ export interface SpeakOptions {
   startWord?: number;
   /** Called once when sound actually starts (after any fetching/decoding), for loading states. */
   onStart?: () => void;
+  /**
+   * Dialogues: "partner" speaks in a second voice (the opposite gender in the same voice family, or another
+   * voice the device has); "primary" (the default) in the chosen voice.
+   */
+  speaker?: "primary" | "partner";
 }
 
 /** "ended": played to the end. "stopped": stop() was called (or another speak() replaced it). */
@@ -29,6 +34,8 @@ export interface TtsProvider {
    * Returns false if it can't (the caller then restarts playback at the new speed).
    */
   setLiveRate?(rate: number): boolean;
+  /** Optional: start fetching the audio for this text now (the next dialogue turn), so it plays without a gap. */
+  prefetch?(text: string, rate: number, options?: SpeakOptions): void;
   /** Whether this provider can be used in the current browser. */
   isAvailable(): boolean;
   /** Optional user-facing explanation shown when `isAvailable()` is false. */

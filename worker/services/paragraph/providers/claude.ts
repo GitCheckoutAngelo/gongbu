@@ -9,6 +9,7 @@ import {
   paragraphRegistry,
   type Difficulty,
   type GeneratedParagraph,
+  type GrammarPractice,
   type SentenceTranslation,
   type Length,
   type ParagraphGenerator,
@@ -38,15 +39,26 @@ export const SYSTEM_PROMPT =
   '"words" lists every space-separated word of the paragraph, in order, exactly as written (punctuation included), ' +
   "each with a short English gloss of its meaning in this sentence, including what its particles or endings add " +
   '(e.g. 학교에 → "to school", 먹었어요 → "ate"). ' +
-  "Use natural, standard Korean spacing (띄어쓰기) and punctuation, and write the Korean as one paragraph.";
+  "Use natural, standard Korean spacing (띄어쓰기) and punctuation, and write the Korean as one paragraph. " +
+  'For grammar practice, mark each word that contains the practised pattern with "pattern": true (otherwise false). ' +
+  'For a dialogue, "korean" is the lines in order without speaker labels, and each sentence gets "speaker" ' +
+  '"A" or "B"; otherwise "speaker" is "".';
 
 /** Structured output: the Korean paragraph, its translation sentence by sentence, and a gloss per word. */
-const OUTPUT_FORMAT = {
+export const OUTPUT_FORMAT = {
   type: "json_schema",
   schema: {
     type: "object",
     properties: {
       korean: { type: "string", description: "The Korean paragraph only." },
+      scene: { type: "string", description: "Grammar practice: the scene in one English line (else empty)." },
+      roles: {
+        type: "object",
+        description: "Grammar practice dialogues: who A and B are (else empty strings).",
+        properties: { A: { type: "string" }, B: { type: "string" } },
+        required: ["A", "B"],
+        additionalProperties: false,
+      },
       sentences: {
         type: "array",
         description: "Every sentence of the paragraph, in order, each with its own English translation.",
@@ -55,8 +67,9 @@ const OUTPUT_FORMAT = {
           properties: {
             korean: { type: "string", description: "The sentence exactly as it appears in the paragraph." },
             english: { type: "string", description: "A faithful English translation of this sentence only." },
+            speaker: { type: "string", enum: ["A", "B", ""], description: "Dialogue speaker, or empty." },
           },
-          required: ["korean", "english"],
+          required: ["korean", "english", "speaker"],
           additionalProperties: false,
         },
       },
@@ -68,13 +81,14 @@ const OUTPUT_FORMAT = {
           properties: {
             word: { type: "string", description: "The word exactly as it appears in the paragraph." },
             english: { type: "string", description: "Short English gloss of the word in context (1-5 words)." },
+            pattern: { type: "boolean", description: "True if this word contains the practised grammar pattern." },
           },
-          required: ["word", "english"],
+          required: ["word", "english", "pattern"],
           additionalProperties: false,
         },
       },
     },
-    required: ["korean", "sentences", "words"],
+    required: ["korean", "sentences", "words", "scene", "roles"],
     additionalProperties: false,
   },
 } as const;
@@ -82,7 +96,61 @@ const OUTPUT_FORMAT = {
 const HANGUL = /[가-힣ᄀ-ᇿ㄰-㆏]/;
 const MAX_TOPIC_CHARS = 200;
 
-export function buildUserPrompt(difficulty: Difficulty, length: Length, topic: string | undefined): string {
+const POLITENESS_GUIDANCE = {
+  casual: "casual speech (반말), as between close friends",
+  polite: "polite everyday speech (해요체)",
+  formal: "formal speech (합쇼체/하십시오체), as with a boss or in an announcement",
+} as const;
+
+/** How many times to use the practised pattern, by length. */
+const PATTERN_USES: Record<Length, string> = { short: "at least 2", medium: "3-4", long: "5-6" };
+
+export function buildUserPrompt(
+  difficulty: Difficulty,
+  length: Length,
+  topic: string | undefined,
+  practice?: GrammarPractice,
+): string {
+  if (practice) {
+    const { pattern, setting, scene, politeness, format } = practice;
+    const where = scene
+      ? `Scene: ${scene}`
+      : setting?.trim()
+        ? `Setting: ${setting.trim()}. Decide who A and B are so the scene and the speech level below are natural.`
+        : "Setting: choose an everyday scene where this pattern is genuinely useful, and decide who A and B are.";
+    return [
+      format === "dialogue"
+        ? "Write a short dialogue in Korean between two people, A and B."
+        : "Write one short piece of Korean prose that fits the scene: a diary entry, a message or a notice.",
+      where,
+      `Speech level: ${POLITENESS_GUIDANCE[politeness]}. Write every line at this level, and adapt the pattern's ` +
+        "ending to it: the pattern is shown in its textbook (polite) form, so at casual level -(으)ㄹ까요? becomes " +
+        "-(으)ㄹ까?, -아/어 주세요 becomes -아/어 줘, -는데요 becomes -는데; at formal level use 합쇼체 endings.",
+      `Grammar focus: ${pattern.form}, ${pattern.meaning}. How it attaches: ${pattern.attaches}`,
+      pattern.variants?.length
+        ? `Its variants also count as uses: ${pattern.variants.map((v) => v.form).join(", ")}.`
+        : "",
+      "",
+      "Make it sound like real Korean speakers in exactly this situation:",
+      "- every line makes sense for who is speaking, to whom, and what is happening; the conversation has a",
+      "  natural flow (a reason to talk, a reply that answers, a small outcome);",
+      `- use the pattern where a native speaker naturally would, ${PATTERN_USES[length]} times, with different`,
+      "  verbs or nouns; never force it into a line where it sounds odd (fewer natural uses beat more forced",
+      "  ones, but use it at least twice);",
+      "- some patterns belong to one speech level (e.g. -아/어 주시겠어요? is always polite, -자 is casual):",
+      "  give such a pattern only to a speaker for whom it is natural in this scene, never e.g. 주시겠어요 between",
+      "  close friends;",
+      "- names, places and details fit the scene; no textbook-style filler.",
+      `Level: ${DIFFICULTY_GUIDANCE[difficulty]}`,
+      `Length: ${LENGTH_GUIDANCE[length]}.`,
+      topic?.trim() ? `Also about: ${topic.trim()}` : "",
+      "",
+      'Also return "scene": the scene in one short English line, and "roles": who A and B are in 1-3 English',
+      'words each (e.g. A "customer", B "barista"); for prose, A is the writer and B is "".',
+    ]
+      .filter((line, i, all) => line !== "" || (all[i - 1] ?? "") !== "")
+      .join("\n");
+  }
   const topicLine = topic?.trim() ? `Topic: ${topic.trim()}` : "Topic: choose an interesting everyday topic.";
   return `Write one Korean paragraph.\nLevel: ${DIFFICULTY_GUIDANCE[difficulty]}\nLength: ${LENGTH_GUIDANCE[length]}.\n${topicLine}`;
 }
@@ -141,11 +209,25 @@ export function alignGlosses(paragraph: string, entries: { word: string; english
     });
 }
 
-function readEntries(value: unknown): { word: string; english: string }[] {
+function readEntries(value: unknown): { word: string; english: string; pattern?: boolean }[] {
   if (!Array.isArray(value)) return [];
   return value.flatMap((e) =>
-    e && typeof e.word === "string" && typeof e.english === "string" ? [{ word: e.word, english: e.english }] : [],
+    e && typeof e.word === "string" && typeof e.english === "string"
+      ? [{ word: e.word, english: e.english, pattern: e.pattern === true }]
+      : [],
   );
+}
+
+/**
+ * Grammar practice: the paragraph's word indices marked as using the pattern. Matched like the glosses
+ * (alignGlosses): each marked entry's word is found in order, so one mismatch doesn't shift the rest.
+ */
+export function alignHighlights(paragraph: string, entries: { word: string; pattern?: boolean }[]): number[] {
+  const marks = alignGlosses(
+    paragraph,
+    entries.map((e) => ({ word: e.word, english: e.pattern ? "1" : "" })),
+  );
+  return marks.flatMap((m, i) => (m === "1" ? [i] : []));
 }
 
 /**
@@ -159,7 +241,7 @@ function readEntries(value: unknown): { word: string; english: string }[] {
  */
 export function alignSentences(
   paragraph: string,
-  entries: { korean: string; english: string }[],
+  entries: { korean: string; english: string; speaker?: string }[],
 ): SentenceTranslation[] {
   const tokens = paragraph.split(/\s+/).filter(Boolean).map(normalize);
   const out: SentenceTranslation[] = [];
@@ -177,15 +259,18 @@ export function alignSentences(
     }
     const end = n === entries.length - 1 ? tokens.length : p;
     const english = tidy(entry.english);
-    if (end > start && english) out.push({ english, start, end });
+    const speaker = entry.speaker === "A" || entry.speaker === "B" ? entry.speaker : undefined;
+    if (end > start && english) out.push({ english, start, end, ...(speaker && { speaker }) });
   });
   return out;
 }
 
-function readSentences(value: unknown): { korean: string; english: string }[] {
+function readSentences(value: unknown): { korean: string; english: string; speaker?: string }[] {
   if (!Array.isArray(value)) return [];
   return value.flatMap((e) =>
-    e && typeof e.korean === "string" && typeof e.english === "string" ? [{ korean: e.korean, english: e.english }] : [],
+    e && typeof e.korean === "string" && typeof e.english === "string"
+      ? [{ korean: e.korean, english: e.english, speaker: typeof e.speaker === "string" ? e.speaker : undefined }]
+      : [],
   );
 }
 
@@ -193,7 +278,9 @@ export function parseReply(raw: string): GeneratedParagraph {
   try {
     const data: unknown = JSON.parse(raw);
     if (data && typeof data === "object") {
-      const { korean, sentences, english, words } = data as {
+      const { korean, sentences, english, words, scene, roles } = data as {
+        scene?: unknown;
+        roles?: { A?: unknown; B?: unknown };
         korean?: unknown;
         sentences?: unknown;
         english?: unknown;
@@ -208,14 +295,39 @@ export function parseReply(raw: string): GeneratedParagraph {
           : typeof english === "string"
             ? tidy(english)
             : "";
-        return { paragraph, translation, glosses: alignGlosses(paragraph, readEntries(words)), sentences: aligned };
+        const entries = readEntries(words);
+        const highlights = alignHighlights(paragraph, entries);
+        return {
+          paragraph,
+          translation,
+          glosses: alignGlosses(paragraph, entries),
+          sentences: aligned,
+          ...(highlights.length && { highlights }),
+          ...(typeof scene === "string" && scene.trim() && { scene: tidy(scene).slice(0, 200) }),
+          ...(roles &&
+            typeof roles.A === "string" &&
+            roles.A.trim() && {
+              roles: {
+                A: tidy(roles.A).slice(0, 40),
+                B: typeof roles.B === "string" ? tidy(roles.B).slice(0, 40) : "",
+              },
+            }),
+        };
       }
     }
   } catch {
     // Not JSON: fall through.
   }
   const paragraph = cleanParagraph(raw);
-  return { paragraph, translation: "", glosses: paragraph.split(/\s+/).filter(Boolean).map(() => ""), sentences: [] };
+  return {
+    paragraph,
+    translation: "",
+    glosses: paragraph
+      .split(/\s+/)
+      .filter(Boolean)
+      .map(() => ""),
+    sentences: [],
+  };
 }
 
 /** The part of the Anthropic client this generator uses (so tests can pass a mock). */
@@ -225,7 +337,7 @@ export class ClaudeParagraphGenerator implements ParagraphGenerator {
   constructor(
     private readonly client: MessagesClient,
     private readonly model: string,
-    private readonly maxTokens = 4096,
+    private readonly maxTokens = 16000,
   ) {}
 
   static fromSettings(settings: Settings): ClaudeParagraphGenerator {
@@ -233,7 +345,12 @@ export class ClaudeParagraphGenerator implements ParagraphGenerator {
     return new ClaudeParagraphGenerator(new Anthropic({ apiKey: settings.anthropicApiKey }), settings.anthropicModel);
   }
 
-  async generate(difficulty: Difficulty, length: Length, topic: string | undefined): Promise<GeneratedParagraph> {
+  async generate(
+    difficulty: Difficulty,
+    length: Length,
+    topic: string | undefined,
+    practice?: GrammarPractice,
+  ): Promise<GeneratedParagraph> {
     if (!DIFFICULTIES.includes(difficulty)) throw new Error(`difficulty must be one of ${DIFFICULTIES.join(", ")}`);
     if (!LENGTHS.includes(length)) throw new Error(`length must be one of ${LENGTHS.join(", ")}`);
     const cleanTopic = topic?.trim().slice(0, MAX_TOPIC_CHARS) || undefined;
@@ -245,8 +362,9 @@ export class ClaudeParagraphGenerator implements ParagraphGenerator {
         max_tokens: this.maxTokens,
         system: SYSTEM_PROMPT,
         // Short creative task: low effort keeps latency and cost down.
-        output_config: { effort: "low", format: OUTPUT_FORMAT },
-        messages: [{ role: "user", content: buildUserPrompt(difficulty, length, cleanTopic) }],
+        // Grammar practice needs a natural scene and correct use of the pattern: think a little more.
+        output_config: { effort: practice ? "medium" : "low", format: OUTPUT_FORMAT },
+        messages: [{ role: "user", content: buildUserPrompt(difficulty, length, cleanTopic, practice) }],
       });
     } catch (err) {
       throw anthropicServiceError(err, "paragraph");

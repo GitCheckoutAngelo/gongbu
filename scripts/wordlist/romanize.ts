@@ -1,7 +1,7 @@
 /**
- * Romanization for the built-in Common Words: `koroman` (the same library as the Worker's romanizer),
- * plus hand-checked fixes where it disagrees with Revised Romanization.
- * Used by scripts/romanize-common-words.ts (which writes the map) and by the data tests (which check it).
+ * Romanization for the Common Words list: `koroman` (the same library as the Worker's romanizer), plus
+ * hand-checked fixes where it disagrees with Revised Romanization. buildSeed.ts writes it into
+ * data/wordSeed.json, and the word-list test checks it's up to date.
  */
 import { romanize } from "koroman";
 
@@ -22,7 +22,7 @@ export const ROMANIZATION_OVERRIDES: Record<string, string> = {
   백화점: "baekhwajeom",
 };
 
-export function romanizeCommonWord(spelling: string): string {
+export function romanizeWord(spelling: string): string {
   return (
     ROMANIZATION_OVERRIDES[spelling] ?? romanize(spelling, { usePronunciationRules: true, casingOption: "lowercase" })
   );

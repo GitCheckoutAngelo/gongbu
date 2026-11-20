@@ -1,0 +1,19 @@
+{
+  "_about": "Hand review of the grammar drafts, keyed by form|group (the draft's group). Fields replace Claude's; \"exclude\" drops a pattern; \"mergeInto\" overrides the family (a key, or null to keep it on its own).",
+  "-다면|condition": {
+    "mergeInto": null,
+    "_why": "hypothetical 'if it were' — learners should tell it apart from -(으)면"
+  },
+  "더/가장|comparison": {
+    "mergeInto": null,
+    "_why": "더 is 'more', not 'the most'"
+  },
+  "-던 N|modifiers": {
+    "mergeInto": null,
+    "_why": "recalling the past: its own point at levels 3-4"
+  },
+  "-았/었던 N|modifiers": {
+    "mergeInto": "-던 N|modifiers",
+    "_why": "same idea as -던 N"
+  }
+}

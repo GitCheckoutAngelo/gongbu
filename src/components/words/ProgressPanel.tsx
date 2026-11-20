@@ -13,7 +13,11 @@ export function ProgressPanel() {
   const setNumber = (key: "newPerDay" | "maxReviews", value: string, min: number, max: number) => {
     const n = Math.round(Number(value));
     if (!Number.isFinite(n)) return;
-    update((p) => ({ ...p, settings: { ...p.settings, [key]: Math.min(max, Math.max(min, n)) } }));
+    update((p) => ({
+      ...p,
+      settings: { ...p.settings, [key]: Math.min(max, Math.max(min, n)) },
+      settingsChangedAt: Date.now(),
+    }));
   };
 
   const exportBackup = () => {
@@ -48,8 +52,8 @@ export function ProgressPanel() {
     <details className="card settings progress-panel">
       <summary>Progress &amp; backup</summary>
       <p className="muted small">
-        Saved in: {storeLabel}. {cards} cards started, {progress.addedWords.length} added words. Export a backup now and
-        then, or to move to another device.
+        Saved in {storeLabel}. {cards} cards started, {progress.addedWords.length} added words. You can also export a
+        backup file.
       </p>
       {!saved && (
         <p className="warning" role="alert">
@@ -85,7 +89,13 @@ export function ProgressPanel() {
         <button type="button" onClick={() => fileRef.current?.click()}>
           Import backup…
         </button>
-        <input ref={fileRef} type="file" accept="application/json,.json" hidden onChange={(e) => void importBackup(e)} />
+        <input
+          ref={fileRef}
+          type="file"
+          accept="application/json,.json"
+          hidden
+          onChange={(e) => void importBackup(e)}
+        />
       </div>
       {message && (
         <p className={message.error ? "warning" : "muted small"} role="status">

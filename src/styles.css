@@ -5757,3 +5757,2315 @@ button.wp-play-from {
     overscroll-behavior: contain;
   }
 }
+
+/* ---------- Saved paragraphs ---------- */
+
+/* Under the paragraph: the hint on the left, Save and the saved list on the right. */
+.reader-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  margin-top: 8px;
+}
+
+.reader-footer .reader-hint {
+  margin: 0;
+}
+
+.reader-footer-actions {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+
+/* Small, quiet text buttons (also in the empty state). */
+button.footer-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  color: var(--muted);
+  transition:
+    background-color 0.2s,
+    border-color 0.2s,
+    color 0.2s;
+}
+
+button.footer-chip[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.reader-empty button.footer-chip {
+  margin-top: 4px;
+}
+
+/* The sheet */
+.saved-sheet {
+  max-width: 560px;
+}
+
+.saved-title {
+  margin: 0 40px 12px 0;
+  font-size: 1.1rem;
+}
+
+.saved-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.saved-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.saved-item {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.saved-item.current {
+  border-color: var(--accent);
+}
+
+button.saved-open {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  text-align: left;
+}
+
+.saved-preview {
+  font-family: var(--font-ko);
+  font-size: 1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.saved-current {
+  color: var(--accent);
+}
+
+button.saved-delete {
+  flex: none;
+  width: 44px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-left: 1px solid var(--border);
+  border-radius: 0;
+  background: none;
+  color: var(--muted);
+}
+
+@media (hover: hover) {
+  button.saved-open:hover:not(:disabled) {
+    background: var(--accent-soft);
+  }
+  button.saved-delete:hover:not(:disabled) {
+    color: var(--error-text);
+  }
+}
+
+/* Browse: casual / formal words get a small outlined badge (neutral words get none). */
+.register-badge {
+  flex: none;
+  padding: 0 6px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.66rem;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.register-badge.casual {
+  border-color: color-mix(in srgb, var(--success) 45%, var(--border));
+  color: var(--success);
+}
+
+.register-badge.formal {
+  border-color: color-mix(in srgb, var(--caution) 45%, var(--border));
+  color: var(--caution);
+}
+
+/* Words page: while the word list loads, or if it couldn't. */
+.words-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.words-load-error {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+}
+
+/* ---------- Browse: pages ---------- */
+.browser-count-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  scroll-margin-top: 12px;
+}
+
+.browser-count {
+  margin: 0;
+}
+
+.mini-pager {
+  display: flex;
+  gap: 4px;
+}
+
+.mini-pager button {
+  min-width: 32px;
+  min-height: 32px;
+  padding: 0;
+  border-radius: 999px;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.pager-numbers {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pager button {
+  min-width: 36px;
+  min-height: 36px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.88rem;
+}
+
+.pager button.pager-number[aria-current="page"] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.pager-gap {
+  min-width: 16px;
+  text-align: center;
+  color: var(--muted);
+}
+
+/* Phones: Previous / "Page 3 of 18" / Next instead of the numbers. */
+.pager-compact {
+  display: none;
+}
+
+@media (max-width: 480px) {
+  .pager-numbers {
+    display: none;
+  }
+  .pager-compact {
+    display: inline;
+  }
+  .pager {
+    justify-content: space-between;
+  }
+}
+
+/* ---------- Phones: bottom tab bar (replaces the top tabs) ---------- */
+.bottom-nav {
+  display: none;
+}
+
+@media (max-width: 560px) {
+  .site-header .nav {
+    display: none;
+  }
+
+  .bottom-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 30; /* under sheets and their backdrops (40+) */
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    padding: 4px 6px calc(4px + env(safe-area-inset-bottom, 0px));
+    background: color-mix(in srgb, var(--card) 92%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-top: 1px solid var(--border);
+  }
+
+  .bottom-nav a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    min-height: 50px;
+    padding: 4px 0;
+    color: var(--muted);
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .bottom-nav-icon {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 28px;
+    border-radius: 999px;
+    transition: background-color 0.2s, color 0.2s;
+  }
+
+  .bottom-nav-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .bottom-nav a[aria-current="page"] {
+    color: var(--accent);
+  }
+
+  .bottom-nav a[aria-current="page"] .bottom-nav-icon {
+    background: var(--accent-soft);
+  }
+
+  /* Popovers opened near the bottom of the screen show over the bar, not under it. */
+  .word-popover,
+  .highlight-panel {
+    z-index: 35;
+  }
+
+  /* Room at the bottom of the page so the bar never covers the last content. */
+  .app.has-bottom-nav {
+    padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* ---------- Browse: compact filter menus (icon + short name) ---------- */
+.browser-filters {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.filter-select {
+  position: relative;
+  display: block;
+  min-width: 0;
+}
+
+.filter-icon {
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 18px;
+  color: var(--muted);
+  pointer-events: none;
+  transition: color 0.2s;
+}
+
+.filter-icon.text {
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.filter-select select {
+  min-height: 40px;
+  padding: 8px 8px 8px 36px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  text-overflow: ellipsis;
+  transition: border-color 0.2s, background-color 0.2s, color 0.2s;
+}
+
+/* A filter that's on reads in the accent colour. */
+.filter-select.active select {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.filter-select.active .filter-icon {
+  color: var(--accent);
+}
+
+.clear-filters {
+  margin-left: auto;
+  font-size: 0.82rem;
+}
+
+@media (max-width: 560px) {
+  .browser-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Sort: the icon is a small round button that reverses the order. */
+button.sort-direction {
+  position: absolute;
+  left: 5px;
+  top: 50%;
+  z-index: 1;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--accent);
+  transition: background-color 0.2s;
+}
+
+@media (hover: hover) {
+  button.sort-direction:hover {
+    background: var(--accent-soft);
+  }
+}
+
+button.sort-direction svg {
+  width: 17px;
+  height: 17px;
+}
+
+/* Browse menus: our own chevron, inset from the edge (the browser's sits too close to it). */
+.filter-select select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 34px;
+}
+
+.filter-select::after {
+  content: "";
+  position: absolute;
+  right: 13px;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  transform: translateY(-50%);
+  background: currentColor;
+  color: var(--muted);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") center / contain no-repeat;
+  pointer-events: none;
+}
+
+.filter-select.active::after {
+  color: var(--accent);
+}
+
+/* Pagers: bigger targets with chevron icons. */
+.mini-pager button {
+  display: grid;
+  place-items: center;
+  min-width: 36px;
+  min-height: 36px;
+}
+
+.mini-pager button svg,
+.pager button svg {
+  width: 18px;
+  height: 18px;
+}
+
+.pager button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 40px;
+}
+
+/* Filters narrow the list (three menus); sorting lives with the results, beside the page arrows. */
+.browser-filters {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 560px) {
+  .browser-filters {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .browser-filters .filter-select select {
+    padding-left: 32px;
+    padding-right: 26px;
+    font-size: 0.85rem;
+  }
+  .browser-filters .filter-icon {
+    left: 9px;
+  }
+  .browser-filters .filter-select::after {
+    right: 9px;
+  }
+}
+
+.browser-count-row {
+  flex-wrap: wrap;
+}
+
+.sort-control {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.clear-filters + .sort-control {
+  margin-left: 8px;
+}
+
+/* The sort menu: a slim pill, the same height as the page arrows beside it. */
+.sort-control .sort-select select {
+  min-height: 36px;
+  width: auto;
+  padding: 4px 30px 4px 38px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.sort-control button.sort-direction {
+  left: 4px;
+  width: 28px;
+  height: 28px;
+}
+
+.sort-control .filter-select::after {
+  right: 11px;
+}
+
+@media (max-width: 380px) {
+  .sort-label {
+    display: none;
+  }
+}
+
+/* ---------- Reader: Grammar practice ---------- */
+
+/* Free writing / Grammar practice */
+.mode-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 14px;
+  border-radius: 14px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+}
+
+.mode-switch button {
+  display: grid;
+  gap: 1px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--muted);
+  text-align: center;
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    box-shadow 0.2s;
+}
+
+.mode-switch button[aria-checked="true"] {
+  background: var(--card);
+  color: var(--text);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+}
+
+.mode-label {
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+
+.mode-switch button[aria-checked="true"] .mode-label {
+  color: var(--accent);
+}
+
+.mode-hint {
+  font-size: 0.74rem;
+}
+
+@media (max-width: 420px) {
+  .mode-hint {
+    display: none;
+  }
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+/* "Choose a pattern" (before one is picked) */
+button.pattern-choose {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px dashed color-mix(in srgb, var(--accent) 45%, var(--border));
+  border-radius: 12px;
+  background: var(--accent-soft);
+  color: var(--text);
+  text-align: left;
+}
+
+.pattern-choose-glyph {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--accent);
+  color: var(--accent-text);
+  font-family: var(--font-ko);
+  font-weight: 800;
+}
+
+/* The pattern card (form, meaning; "How it works" opens the details) */
+.pattern-card {
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
+  border-radius: 12px;
+  padding: 10px 12px 6px;
+  background: color-mix(in srgb, var(--accent-soft) 45%, transparent);
+}
+
+.reader-body .pattern-card {
+  margin-bottom: 10px;
+}
+
+.pattern-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.pattern-card-title {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.pattern-form {
+  font-family: var(--font-ko);
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: var(--accent);
+}
+
+.pattern-meaning {
+  font-size: 0.92rem;
+}
+
+button.pattern-change {
+  flex: none;
+  min-height: 32px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+}
+
+button.pattern-card-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 30px;
+  margin-top: 4px;
+  padding: 2px 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.pattern-card-toggle svg {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.25s;
+}
+
+.pattern-card.open .pattern-card-toggle svg {
+  transform: rotate(180deg);
+}
+
+.pattern-card-body {
+  display: grid;
+  gap: 8px;
+  padding: 4px 0 8px;
+}
+
+.pattern-attaches,
+.pattern-note {
+  margin: 0;
+}
+
+.pattern-note {
+  color: var(--muted);
+}
+
+.pattern-examples {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.pattern-examples li {
+  display: grid;
+  gap: 1px;
+  font-family: var(--font-ko);
+}
+
+mark.pattern-part {
+  background: none;
+  color: var(--accent);
+  font-weight: 700;
+  text-decoration: underline 2px color-mix(in srgb, var(--accent) 55%, transparent);
+  text-underline-offset: 4px;
+}
+
+/* Setting chips: one wrapping row (a scrolling strip on phones) */
+.setting-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+button.setting-chip {
+  min-height: 34px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  color: var(--muted);
+  transition:
+    background-color 0.2s,
+    border-color 0.2s,
+    color 0.2s;
+}
+
+button.setting-chip[aria-checked="true"] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+@media (max-width: 560px) {
+  .setting-chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    margin: 0 -16px;
+    padding: 2px 16px 6px;
+    scrollbar-width: none;
+  }
+  .setting-chips::-webkit-scrollbar {
+    display: none;
+  }
+  button.setting-chip {
+    flex: none;
+  }
+}
+
+input.setting-custom {
+  margin-top: 8px;
+}
+
+.politeness-glyph {
+  font-family: var(--font-ko);
+  font-weight: 800;
+  font-size: 0.95rem;
+}
+
+/* Summary bar: the practised pattern */
+.summary-pattern {
+  font-family: var(--font-ko);
+  font-weight: 800;
+  color: var(--accent);
+}
+
+/* In the text: each use of the pattern (an underline, so it reads alongside the read-aloud highlight) */
+.word.pattern-hit {
+  color: var(--accent);
+  text-decoration: underline 2px color-mix(in srgb, var(--accent) 55%, transparent);
+  text-underline-offset: 6px;
+  text-decoration-skip-ink: none;
+}
+
+/* Dialogues: one row per turn, the speaker's label in its own column (wrapped lines stay aligned) */
+.korean-text.dialogue,
+.translation.dialogue {
+  display: grid;
+  gap: 6px;
+}
+
+.turn {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+}
+
+.turn-words {
+  margin: 0;
+}
+
+.speaker-badge {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.turn-B .speaker-badge {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+/* Line the badge up with the first line of Korean (sized and placed in the text's own units, so it stays
+   centred on the words with or without the romanization row above them). */
+.korean-text.dialogue .speaker-badge {
+  font-size: 0.5em;
+  width: 2.1em;
+  height: 2.1em;
+  margin-top: 1.5em;
+  transition: margin-top 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.korean-text.dialogue.hide-romanization .speaker-badge {
+  margin-top: 0.75em;
+}
+
+.translation.dialogue .speaker-badge {
+  width: 22px;
+  height: 22px;
+  font-size: 0.7rem;
+  margin-top: 1px;
+}
+
+/* Pattern picker sheet */
+.pattern-sheet {
+  max-width: 640px;
+}
+
+.pattern-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 4px;
+}
+
+.pattern-filters select {
+  flex: 1 1 180px;
+  width: auto;
+  min-height: 36px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.88rem;
+}
+
+.level-chips {
+  display: flex;
+  gap: 4px;
+}
+
+.level-chips button {
+  min-height: 34px;
+  min-width: 40px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.level-chips button[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.pattern-group + .pattern-group {
+  margin-top: 12px;
+}
+
+.pattern-group-title {
+  margin: 8px 0 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.pattern-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+button.pattern-row {
+  display: grid;
+  grid-template-columns: minmax(0, auto) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 4px 12px;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  text-align: left;
+}
+
+button.pattern-row .pattern-form {
+  font-size: 1rem;
+}
+
+button.pattern-row .pattern-meaning {
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+button.pattern-row.current {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.pattern-tags {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.register-badge.spoken {
+  border-color: color-mix(in srgb, var(--success) 45%, var(--border));
+  color: var(--success);
+}
+
+.register-badge.written {
+  border-color: color-mix(in srgb, var(--caution) 45%, var(--border));
+  color: var(--caution);
+}
+
+@media (max-width: 480px) {
+  button.pattern-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  button.pattern-row .pattern-meaning {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    white-space: normal;
+  }
+}
+
+@media (hover: hover) {
+  button.pattern-row:hover {
+    background: var(--accent-soft);
+  }
+}
+
+/* ---------- Grammar: plain-language first (example + title; the textbook form small) ---------- */
+.pattern-sample {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.pattern-sample-ko {
+  font-family: var(--font-ko);
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: var(--accent);
+}
+
+.pattern-sample-en {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.pattern-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+  min-width: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.pattern-notation,
+.pattern-notation-label {
+  font-family: var(--font-ko);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.pattern-notation-label {
+  display: inline-block;
+  padding: 0 6px;
+  margin-right: 2px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+/* Picker rows: [example] [title + form] [tags] */
+button.pattern-row {
+  grid-template-columns: minmax(7.5em, auto) minmax(0, 1fr) auto;
+}
+
+@media (max-width: 480px) {
+  button.pattern-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  button.pattern-row .pattern-title {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}
+
+/* Card head: example and title, then the one-line explanation */
+.pattern-card-name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 10px;
+}
+
+.pattern-card-name .pattern-sample-ko {
+  font-size: 1.15rem;
+}
+
+.pattern-explain {
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+/* ---------- Reader form: switching Free writing / Grammar practice ---------- */
+.generate-fields {
+  display: grid;
+  gap: 18px;
+}
+
+/* The switch: one highlight that slides under the chosen option. */
+.mode-switch {
+  position: relative;
+  margin-bottom: 0;
+}
+
+.mode-switch::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc(50% - 6px);
+  border-radius: 10px;
+  background: var(--card);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.mode-switch[data-mode="grammar"]::before {
+  transform: translateX(calc(100% + 4px));
+}
+
+.mode-switch button {
+  position: relative;
+  z-index: 1;
+}
+
+.mode-switch button[aria-checked="true"] {
+  background: transparent;
+  box-shadow: none;
+}
+
+/* The fields: fade in from the side you switched towards. */
+.mode-pane {
+  animation: mode-pane-in 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.mode-pane.from-left {
+  --from: -14px;
+}
+
+.mode-pane.from-right {
+  --from: 14px;
+}
+
+@keyframes mode-pane-in {
+  from {
+    opacity: 0;
+    transform: translateX(var(--from, 0));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mode-switch::before,
+  .mode-pane {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* ---------- Grammar form: less at once ---------- */
+.mode-switch button {
+  padding: 10px;
+}
+
+.pattern-card.compact {
+  padding: 10px 12px;
+}
+
+.pattern-card.compact .pattern-card-head {
+  align-items: center;
+}
+
+/* "More…": a chip-shaped menu for the other settings */
+.setting-more {
+  position: relative;
+  flex: none;
+}
+
+.setting-more select {
+  appearance: none;
+  -webkit-appearance: none;
+  width: auto;
+  min-height: 34px;
+  padding: 4px 28px 4px 12px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  color: var(--muted);
+  background: transparent;
+}
+
+.setting-more::after {
+  content: "";
+  position: absolute;
+  right: 11px;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  transform: translateY(-50%);
+  background: currentColor;
+  color: var(--muted);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") center / contain no-repeat;
+  pointer-events: none;
+}
+
+/* Grammar form: the setting menu (one control; full width, like the other fields) */
+.setting-select select {
+  width: 100%;
+}
+
+/* ---------- Grammar form: setting field + sheet of icon tiles ---------- */
+button.setting-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 46px;
+  padding: 8px 14px;
+  border-radius: 12px;
+  text-align: left;
+  font-weight: 600;
+  transition:
+    border-color 0.2s,
+    background-color 0.2s;
+}
+
+button.setting-field.active {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+}
+
+.setting-field-icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 1.15rem;
+}
+
+.setting-field-label {
+  flex: 1;
+  min-width: 0;
+}
+
+.setting-field-change {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.setting-sheet {
+  max-width: 560px;
+}
+
+/* In the sheet the chips wrap (no sideways strip on phones). */
+.setting-sheet .setting-chips {
+  flex-wrap: wrap;
+  overflow: visible;
+  margin: 0;
+  padding: 0;
+}
+
+.setting-group {
+  margin-top: 14px;
+}
+
+.setting-group-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.setting-group-icon {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 1rem;
+}
+
+.setting-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.setting-chip-icon {
+  display: inline-grid;
+  font-size: 1rem;
+}
+
+/* Setting sheet: each group a row, separated by a hairline; on wide screens the group name sits in its
+   own column so the chips line up. */
+.setting-sheet .setting-group {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+@media (min-width: 600px) {
+  .setting-sheet .setting-group {
+    display: grid;
+    grid-template-columns: 11.5rem minmax(0, 1fr);
+    align-items: start;
+    gap: 10px;
+  }
+  .setting-sheet .setting-group-title {
+    margin: 4px 0 0;
+  }
+}
+
+/* Setting sheet: "Your own…" text box */
+.setting-own {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  animation: reader-enter 0.25s ease-out;
+}
+
+.setting-own input {
+  flex: 1;
+  min-width: 0;
+}
+
+.setting-own button {
+  flex: none;
+  min-width: 72px;
+}
+
+/* Grammar practice sheets keep one size (filtering patterns, or opening "Your own…", only changes what
+   scrolls inside them). */
+.sheet.pattern-sheet,
+.sheet.setting-sheet {
+  height: min(680px, 85dvh);
+  overflow-y: auto;
+}
+
+@media (max-width: 560px) {
+  .sheet.pattern-sheet,
+  .sheet.setting-sheet {
+    height: 85dvh;
+  }
+}
+
+/* Grammar card: the variants merged into this item */
+.pattern-variants {
+  color: var(--text);
+}
+
+.pattern-variants [lang="ko"] {
+  font-family: var(--font-ko);
+  font-weight: 600;
+}
+
+/* Grammar practice: the scene line (who's talking, what's happening) above the text */
+.practice-scene {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  margin: 0 0 4px;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.practice-roles {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+}
+
+.practice-roles .role {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--text);
+}
+
+.practice-roles .speaker-badge {
+  width: 20px;
+  height: 20px;
+  font-size: 0.66rem;
+}
+
+/* Tiles that can't be chosen right now (e.g. a speech level the pattern isn't used at) */
+.option-tile:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.tile-note {
+  margin: 6px 0 0;
+}
+
+/* ---------- Grammar: meaning first, then an example marked "e.g." ---------- */
+.pattern-meaning-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+  min-width: 0;
+}
+
+.pattern-meaning-line .pattern-title {
+  display: inline;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.pattern-example {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+  min-width: 0;
+}
+
+.pattern-example-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+}
+
+.pattern-example .pattern-sample-ko {
+  font-size: 0.98rem;
+}
+
+.pattern-example .pattern-sample-en {
+  font-size: 0.82rem;
+}
+
+.pattern-example .pattern-sample-en::before {
+  content: "— ";
+}
+
+/* Picker rows: [meaning + form / e.g. example] [tags] */
+button.pattern-row {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.pattern-row-text {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+@media (max-width: 480px) {
+  button.pattern-row .pattern-row-text {
+    grid-column: 1;
+    grid-row: 1;
+  }
+}
+
+.pattern-card .pattern-card-title {
+  gap: 4px;
+}
+
+/* Grammar form: Situation (ready-made everyday conversations, or your own for Claude to write) */
+.source-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.source-switch button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  transition:
+    border-color 0.2s,
+    background-color 0.2s,
+    color 0.2s;
+}
+
+.source-switch button[aria-checked="true"] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+@media (max-width: 420px) {
+  .source-switch {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Above a text the pattern card is one line; its details open from "How it works". */
+.pattern-card.slim {
+  padding: 8px 12px;
+}
+
+.pattern-card.slim .pattern-card-head {
+  align-items: center;
+}
+
+.pattern-card.slim .pattern-meaning-line {
+  flex: 1;
+}
+
+.pattern-card.slim .pattern-card-toggle {
+  flex: none;
+  margin: 0;
+}
+
+.pattern-card.slim .pattern-card-body {
+  padding-top: 8px;
+}
+
+.pattern-card.slim .pattern-card-body p {
+  margin: 0;
+}
+
+/* Grammar examples: how the Korean is read, in a small tooltip above it (hover, or tap/focus). */
+.romanized {
+  position: relative;
+  cursor: help;
+  text-decoration: underline dotted color-mix(in srgb, currentColor 35%, transparent);
+  text-underline-offset: 0.25em;
+  border-radius: 3px;
+}
+.romanized:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.romanized::after {
+  content: attr(data-rom);
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 6px);
+  z-index: 5;
+  width: max-content;
+  max-width: min(280px, 80vw);
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: var(--text);
+  color: var(--bg);
+  font-size: 0.78rem;
+  font-weight: 400;
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+  white-space: normal;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(3px);
+  transition: opacity 0.12s ease, transform 0.12s ease;
+}
+.romanized:hover::after,
+.romanized:focus::after {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .romanized::after {
+    transition: none;
+  }
+}
+
+/* Summary bar (grammar practice): the pattern's form as a badge, conversation dots, the speech level. */
+.summary-pattern {
+  font-family: inherit;
+  font-weight: 700;
+  color: var(--text);
+  gap: 8px;
+}
+.summary-pattern-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.summary-setting {
+  font-weight: 500;
+  color: var(--muted);
+}
+.summary-setting .summary-icon {
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+.conversation-dots {
+  gap: 5px;
+  padding: 0 2px;
+}
+.conversation-dots .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--muted) 35%, transparent);
+  transition:
+    width 0.25s ease,
+    background-color 0.25s ease;
+}
+.conversation-dots .dot.current {
+  width: 18px;
+  background: var(--accent);
+}
+.conversation-count {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.summary-level {
+  font-weight: 600;
+  color: var(--muted);
+}
+/* Next conversation: the card stays put; the new conversation slides in from the right. */
+.conversation-swap {
+  animation: conversation-swap 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@keyframes conversation-swap {
+  from {
+    opacity: 0;
+    transform: translateX(14px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .conversation-swap {
+    animation: none;
+  }
+}
+
+/* Pattern card ("How it works"): labelled sections, so what it does / how to form it / examples read apart. */
+.pattern-card.slim .pattern-card-body {
+  gap: 14px;
+}
+.pattern-section {
+  display: grid;
+  gap: 6px;
+}
+.pattern-section-label {
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.pattern-rules {
+  margin: 0;
+  padding-left: 1.1em;
+  display: grid;
+  gap: 4px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+.pattern-rules li::marker {
+  color: var(--accent);
+}
+.pattern-card.slim .pattern-card-meta {
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+/* The pattern named inside its explanation ("Put -아요/어요 at the end…"). */
+.pattern-form-inline {
+  padding: 0 5px;
+  border-radius: 5px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-family: var(--font-ko);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* ---------- Learn → Grammar: sentence basics and the pattern reference ---------- */
+.basics-jump {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+.basics-jump a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px 5px 6px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+.basics-jump a:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.basics-number {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 800;
+  flex: none;
+}
+
+.basics-card {
+  display: grid;
+  gap: 12px;
+  scroll-margin-top: 16px;
+}
+.basics-title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  font-size: 1.05rem;
+}
+.basics-title .basics-number {
+  width: 26px;
+  height: 26px;
+  font-size: 0.85rem;
+}
+.basics-explain {
+  margin: 0;
+  line-height: 1.55;
+}
+.basics-examples {
+  display: grid;
+  gap: 10px;
+}
+
+/* An example split into parts: each part's Korean, with what it is underneath, coloured by its job. */
+.breakdown {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--accent-soft) 35%, var(--card));
+  border: 1px solid var(--border);
+}
+.breakdown-parts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.breakdown-parts.one-word {
+  gap: 2px;
+}
+.breakdown-part {
+  --role: var(--accent);
+  --role-soft: var(--accent-soft);
+  display: grid;
+  gap: 3px;
+  justify-items: start;
+}
+.breakdown-ko {
+  padding: 3px 9px;
+  border-radius: 8px;
+  background: var(--role-soft);
+  color: var(--role);
+  border-bottom: 2px solid var(--role);
+  font-family: var(--font-ko);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+.breakdown-gloss {
+  padding-left: 2px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text);
+}
+.breakdown-role {
+  font-weight: 500;
+  color: var(--muted);
+}
+.role-topic,
+.role-subject {
+  --role: var(--caution);
+  --role-soft: var(--caution-soft);
+}
+.role-object {
+  --role: var(--success);
+  --role-soft: var(--success-soft);
+}
+.role-place,
+.role-time {
+  --role: var(--muted);
+  --role-soft: color-mix(in srgb, var(--muted) 14%, transparent);
+}
+.role-ending .breakdown-ko {
+  border-bottom-style: dashed;
+}
+.breakdown-meaning {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+.breakdown-speak {
+  flex: none;
+}
+
+.basics-table {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.basics-row {
+  display: grid;
+  grid-template-columns: 6.5em minmax(0, 1fr);
+  gap: 12px;
+  padding: 8px 12px;
+  align-items: baseline;
+}
+.basics-row + .basics-row {
+  border-top: 1px solid var(--border);
+}
+.basics-row dt {
+  font-family: var(--font-ko);
+  font-weight: 800;
+  color: var(--accent);
+}
+.basics-row dd {
+  margin: 0;
+  font-size: 0.9rem;
+}
+.basics-note {
+  margin: 0;
+  padding-left: 10px;
+  border-left: 3px solid var(--border);
+  line-height: 1.5;
+}
+
+/* The pattern reference: groups of slim pattern cards, each with Practise. */
+.grammar-reference {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  scroll-margin-top: 16px;
+}
+#grammar-patterns-title {
+  scroll-margin-top: 16px;
+}
+.grammar-group {
+  display: grid;
+  gap: 8px;
+}
+.grammar-group .pattern-group-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 0 4px;
+}
+.grammar-group-count {
+  padding: 0 7px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--muted) 16%, transparent);
+  font-size: 0.72rem;
+  letter-spacing: 0;
+}
+.grammar-group-list {
+  display: grid;
+  gap: 8px;
+}
+.grammar-group-list .pattern-card {
+  background: var(--card);
+}
+button.pattern-practise {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex: none;
+  min-height: 30px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+button.pattern-practise:hover {
+  background: var(--accent-soft);
+}
+button.pattern-practise svg {
+  width: 12px;
+  height: 12px;
+}
+@media (max-width: 480px) {
+  .pattern-practise-label {
+    display: none;
+  }
+  button.pattern-practise {
+    padding: 4px 9px;
+  }
+}
+@media (max-width: 560px) {
+  .bottom-nav-icon {
+    width: 42px;
+  }
+}
+
+/* Tabs between a nav item's pages (Hangul: Letters | Pronunciation; Grammar: Sentence basics | Patterns).
+   It lives in the Layout, so the highlight slides between pages instead of reappearing. */
+.subpage-tabs {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--count), 1fr);
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--border) 35%, var(--bg));
+}
+.subpage-tabs::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc((100% - 8px) / var(--count));
+  border-radius: 10px;
+  background: var(--card);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+  transform: translateX(calc(100% * var(--at)));
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.subpage-tabs a {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+.subpage-tabs a [lang="ko"] {
+  font-family: var(--font-ko);
+  font-weight: 800;
+}
+.subpage-tabs a[aria-current="page"] {
+  color: var(--text);
+}
+.subpage-tabs a[aria-current="page"] [lang="ko"] {
+  color: var(--accent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .subpage-tabs::before {
+    transition: none;
+  }
+}
+
+/* Sentence basics → patterns. */
+a.basics-next {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--text);
+  text-decoration: none;
+}
+a.basics-next:hover {
+  border-color: var(--accent);
+}
+a.basics-next svg {
+  flex: none;
+  color: var(--accent);
+}
+
+/* Top of the text: the conversation pager (‹ dots ›), or New paragraph. */
+.text-nav {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  min-height: 34px;
+}
+.text-nav-label {
+  margin-right: auto;
+  font-weight: 600;
+}
+.pager {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+.pager .conversation-dots {
+  padding: 0 4px;
+}
+button.pager-arrow {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--accent);
+}
+button.pager-arrow:hover:not(:disabled) {
+  background: var(--accent-soft);
+}
+button.pager-arrow:disabled {
+  color: var(--muted);
+  opacity: 0.5;
+}
+button.pager-arrow svg {
+  width: 16px;
+  height: 16px;
+}
+button.text-nav-new {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--accent);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+button.text-nav-new:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+button.text-nav-new svg {
+  width: 14px;
+  height: 14px;
+}
+.conversation-swap.from-left {
+  animation-name: conversation-swap-back;
+}
+@keyframes conversation-swap-back {
+  from {
+    opacity: 0;
+    transform: translateX(-14px);
+  }
+}
+
+/* Situation: two tiles, filling the row like the three "Speaking to" tiles above. */
+.situation-field .option-tiles {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+/* While the form is in the other mode, the text on screen dims and can't be used (it isn't what you're setting up). */
+.reader-slot > .reader {
+  transition:
+    opacity 0.3s ease,
+    filter 0.3s ease;
+}
+.reader-slot.dimmed > .reader {
+  opacity: 0.35;
+  filter: grayscale(1);
+  pointer-events: none;
+  user-select: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .reader-slot > .reader {
+    transition: none;
+  }
+}
+
+/* Grammar text: room between the pager, the pattern card, the situation and the dialogue. */
+.reader-body > .text-nav {
+  margin: 6px 0 10px;
+}
+.text-nav-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.reader-body > .pattern-card + .conversation-swap,
+.reader-body > .pattern-card + div {
+  margin-top: 12px;
+}
+/* The situation: the scene, then who's who, on its own line, before the dialogue. */
+.practice-scene {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 14px;
+  padding: 0 2px;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+.practice-roles {
+  gap: 6px;
+}
+.practice-roles .role {
+  padding: 3px 10px 3px 4px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.82rem;
+}
+
+/* Always keep room for the page scrollbar, so the layout doesn't shift sideways when a longer or shorter
+   text makes it appear or disappear (Play, ×, the pager stay put). */
+html {
+  scrollbar-gutter: stable;
+}
+
+/* "Your own situation": its text box slides in under the tiles instead of popping in. */
+input.setting-custom {
+  margin-top: 10px;
+  animation: reader-enter 0.25s ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  input.setting-custom {
+    animation: none;
+  }
+}
+
+/* Sentence basics as steps: one topic at a time. */
+.basics-intro {
+  margin: 0 4px;
+  font-size: 0.92rem;
+}
+.basics-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+button.basics-step {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+button.basics-step .basics-number {
+  background: color-mix(in srgb, var(--muted) 16%, transparent);
+  color: var(--muted);
+}
+button.basics-step.done .basics-number {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+button.basics-step[aria-current="step"] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--text);
+}
+button.basics-step[aria-current="step"] .basics-number {
+  background: var(--accent);
+  color: var(--accent-text);
+}
+@media (max-width: 560px) {
+  /* Phones: just the numbers, the current step with its name. */
+  .basics-steps {
+    grid-template-columns: repeat(4, auto);
+    justify-content: start;
+  }
+  button.basics-step .basics-step-label {
+    display: none;
+  }
+  button.basics-step[aria-current="step"] .basics-step-label {
+    display: inline;
+  }
+}
+
+.basics-pager {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+button.basics-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 600;
+}
+button.basics-back:hover {
+  color: var(--text);
+}
+.basics-forward {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: auto;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-weight: 700;
+  text-decoration: none;
+}
+a.basics-forward {
+  background: var(--accent);
+  color: var(--accent-text);
+}
+.basics-forward svg,
+button.basics-back svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Examples: tighter, the 🔊 and translation as one small line under the parts. */
+.breakdown {
+  gap: 6px;
+  padding: 10px 12px;
+}
+.breakdown-meaning .speak-button {
+  width: 28px;
+  height: 28px;
+  min-height: 0;
+  padding: 0;
+}
+
+/* Sentence basics examples: a round speaker button, then how it's read and what it means. */
+.breakdown-meaning {
+  align-items: center;
+  gap: 10px;
+}
+button.listen-button {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 34px;
+  height: 34px;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+  transition: background-color 0.2s, color 0.2s;
+}
+button.listen-button:hover {
+  background: color-mix(in srgb, var(--accent) 22%, var(--accent-soft));
+}
+button.listen-button.playing {
+  background: var(--accent);
+  color: var(--accent-text);
+}
+button.listen-button svg {
+  width: 17px;
+  height: 17px;
+}
+button.listen-button .spinner {
+  width: 14px;
+  height: 14px;
+}
+.listen-stop {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: currentColor;
+}
+.breakdown-lines {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+.breakdown-rom {
+  color: var(--text);
+  font-size: 0.88rem;
+  font-style: italic;
+}
+.breakdown-en {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+/* Sentence-type examples: the type, then the sentence's shape. */
+.breakdown-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+.breakdown-heading {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.breakdown-pattern {
+  font-family: inherit;
+  font-size: 0.82rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+/* The particle inside a part (비 + 가): set apart so the tag is visible. */
+.breakdown-particle {
+  margin-left: 2px;
+  padding: 0 3px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--role) 22%, transparent);
+  text-decoration: underline 2px;
+  text-underline-offset: 4px;
+}
+.basics-table-intro {
+  margin: 0 0 -4px;
+  color: var(--text);
+}
+
+/* Under a noun + particle: the noun's meaning, then what the particle adds. */
+.breakdown-split {
+  display: grid;
+  gap: 1px;
+}
+.breakdown-split [lang="ko"] {
+  font-family: var(--font-ko);
+  font-weight: 700;
+}
+.breakdown-tag {
+  color: var(--role);
+  font-weight: 600;
+}
+
+/* A particle with more than one use (에: to a place / at a time), numbered under its label. */
+.basics-uses {
+  margin: 4px 0 2px;
+  padding-left: 1.3em;
+  display: grid;
+  gap: 2px;
+}
+.basics-uses li::marker {
+  color: var(--muted);
+  font-weight: 400;
+}

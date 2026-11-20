@@ -6,7 +6,9 @@
 import type { Env } from "./config";
 import { errorResponse } from "./http";
 
-type LimiterName = "AI_RATE_LIMITER" | "TTS_RATE_LIMITER";
+import { USER_DATA_PATH } from "./userDataApi";
+
+type LimiterName = "AI_RATE_LIMITER" | "TTS_RATE_LIMITER" | "DATA_RATE_LIMITER";
 
 const LIMITED_PATHS: Record<string, LimiterName> = {
   "/api/generate": "AI_RATE_LIMITER",
@@ -23,10 +25,17 @@ export function callerKey(request: Request): string {
   );
 }
 
+/** Which limiter applies: the paid POST routes, and every write to per-learner data. */
+function limiterFor(request: Request): LimiterName | undefined {
+  const path = new URL(request.url).pathname;
+  if (request.method === "POST" && LIMITED_PATHS[path]) return LIMITED_PATHS[path];
+  if (request.method !== "GET" && USER_DATA_PATH.test(path.replace(/^\/api/, ""))) return "DATA_RATE_LIMITER";
+  return undefined;
+}
+
 /** Returns a 429 response when the caller is over the limit for this path, otherwise null. */
 export async function rateLimitResponse(request: Request, env: Env): Promise<Response | null> {
-  if (request.method !== "POST") return null;
-  const name = LIMITED_PATHS[new URL(request.url).pathname];
+  const name = limiterFor(request);
   const limiter = name && env[name];
   if (!limiter) return null;
   const { success } = await limiter.limit({ key: `${name}:${callerKey(request)}` });

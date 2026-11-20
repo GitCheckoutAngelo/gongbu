@@ -22,8 +22,10 @@ describe("rate limiting", () => {
     const ai = limiter(true);
     const tts = limiter(true);
     const env = { AI_RATE_LIMITER: ai, TTS_RATE_LIMITER: tts } as unknown as Env;
-    for (const path of ["/api/generate", "/api/words/suggest"]) expect(await rateLimitResponse(req(path), env)).toBeNull();
-    for (const path of ["/api/tts", "/api/tts/timed", "/api/tts/align"]) expect(await rateLimitResponse(req(path), env)).toBeNull();
+    for (const path of ["/api/generate", "/api/words/suggest"])
+      expect(await rateLimitResponse(req(path), env)).toBeNull();
+    for (const path of ["/api/tts", "/api/tts/timed", "/api/tts/align"])
+      expect(await rateLimitResponse(req(path), env)).toBeNull();
     expect(ai.limit).toHaveBeenCalledTimes(2);
     expect(tts.limit).toHaveBeenCalledTimes(3);
     expect(ai.limit).toHaveBeenCalledWith({ key: "AI_RATE_LIMITER:anonymous" });

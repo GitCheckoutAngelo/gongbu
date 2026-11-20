@@ -1,17 +1,30 @@
 /**
  * Home: the app's two halves at a glance. Each tile has one status line and at most one action.
- * Learn = reference (Hangul, Rules); Practice = daily (Words, Reader).
+ * Learn = reference (Hangul with its pronunciation rules, Grammar); Practice = daily (Words, Reader).
  */
 import { useEffect, useState, type ReactNode } from "react";
-import { WatermarkCards, WatermarkHangul, WatermarkLines, WatermarkRules } from "../components/HomeWatermarks";
+import {
+  WatermarkCards,
+  WatermarkGrammar,
+  WatermarkHangul,
+  WatermarkLines,
+} from "../components/HomeWatermarks";
 import { IconPlay, IconRepeat, IconSparkle } from "../components/words/icons";
 import { JAMO } from "../data/hangul";
 import { RULES } from "../data/rules";
 import { Link, navigate } from "../router";
 import { loadReaderSnapshot } from "./readerSnapshot";
 
-const LEVEL_LABEL = { beginner: "Beginner", intermediate: "Intermediate", advanced: "Advanced" } as const;
-const LENGTH_LABEL = { short: "Short", medium: "Medium", long: "Long" } as const;
+const LEVEL_LABEL = {
+  beginner: "Beginner",
+  intermediate: "Intermediate",
+  advanced: "Advanced",
+} as const;
+const LENGTH_LABEL = {
+  short: "Short",
+  medium: "Medium",
+  long: "Long",
+} as const;
 
 function Tile({
   to,
@@ -51,11 +64,17 @@ function Tile({
 
 export function HomePage() {
   const reader = loadReaderSnapshot();
-  const [words, setWords] = useState<{ due: number; fresh: number } | null>(null);
+  const [words, setWords] = useState<{ due: number; fresh: number } | null>(
+    null,
+  );
+  const [wordsFailed, setWordsFailed] = useState(false);
 
   useEffect(() => {
     let live = true;
-    import("../services/srs/homeSummary").then(({ wordsToday }) => live && setWords(wordsToday()));
+    import("../services/srs/homeSummary")
+      .then(({ wordsToday }) => wordsToday())
+      .then((summary) => live && setWords(summary))
+      .catch(() => live && setWordsFailed(true));
     return () => {
       live = false;
     };
@@ -70,13 +89,19 @@ export function HomePage() {
         <h2 id="home-learn" className="home-group-title">
           Learn <span className="muted ko-sub">배우기</span>
         </h2>
-        <Tile to="/hangul" ko="한글" en="Hangul" status={`${JAMO.length} letters`} art={<WatermarkHangul />} />
         <Tile
-          to="/rules"
-          ko="발음"
-          en="Rules"
-          status={`${RULES.length} pronunciation rules`}
-          art={<WatermarkRules />}
+          to="/hangul"
+          ko="한글"
+          en="Hangul"
+          status={`${JAMO.length} letters · ${RULES.length} pronunciation rules`}
+          art={<WatermarkHangul />}
+        />
+        <Tile
+          to="/grammar"
+          ko="문법"
+          en="Grammar"
+          status="Sentence basics and grammar patterns"
+          art={<WatermarkGrammar />}
         />
       </section>
 
@@ -91,7 +116,11 @@ export function HomePage() {
           art={<WatermarkCards />}
           status={
             !words ? (
-              "…"
+              wordsFailed ? (
+                "Couldn't load your words"
+              ) : (
+                "…"
+              )
             ) : toDo === 0 ? (
               "All done today ✓"
             ) : (
@@ -102,7 +131,11 @@ export function HomePage() {
           }
           action={
             words && toDo > 0 ? (
-              <button type="button" className="primary home-action" onClick={() => navigate("/words#start")}>
+              <button
+                type="button"
+                className="primary home-action"
+                onClick={() => navigate("/words#start")}
+              >
                 <IconPlay /> Start
               </button>
             ) : undefined
@@ -115,13 +148,21 @@ export function HomePage() {
           art={<WatermarkLines />}
           status={
             reader?.result && settings
-              ? [LEVEL_LABEL[settings.difficulty], LENGTH_LABEL[settings.length], settings.topic]
+              ? [
+                  LEVEL_LABEL[settings.difficulty],
+                  LENGTH_LABEL[settings.length],
+                  settings.topic,
+                ]
                   .filter(Boolean)
                   .join(" · ")
               : "No paragraph yet"
           }
           action={
-            <button type="button" className="home-action secondary" onClick={() => navigate("/reader")}>
+            <button
+              type="button"
+              className="home-action secondary"
+              onClick={() => navigate("/reader")}
+            >
               {reader?.result ? (
                 <>
                   <IconRepeat /> Continue

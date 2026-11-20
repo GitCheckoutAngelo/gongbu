@@ -2,7 +2,7 @@ import { AddWords } from "../components/words/AddWords";
 import { ProgressPanel } from "../components/words/ProgressPanel";
 import { StudyPanel } from "../components/words/StudyPanel";
 import { WordBrowser } from "../components/words/WordBrowser";
-import { WordsProvider } from "../components/words/WordsContext";
+import { WordsProvider, WordsReady } from "../components/words/WordsContext";
 import { Link } from "../router";
 
 const TABS = [
@@ -23,14 +23,16 @@ export default function WordsPage({ path }: { path: string }) {
           </Link>
         ))}
       </nav>
-      {tab.to === "/words" && (
-        <>
-          <StudyPanel />
-          <ProgressPanel />
-        </>
-      )}
-      {tab.to === "/words/browse" && <WordBrowser />}
-      {tab.to === "/words/add" && <AddWords />}
+      <WordsReady>
+        {tab.to === "/words" && (
+          <>
+            <StudyPanel />
+            <ProgressPanel />
+          </>
+        )}
+        {tab.to === "/words/browse" && <WordBrowser />}
+        {tab.to === "/words/add" && <AddWords />}
+      </WordsReady>
     </WordsProvider>
   );
 }

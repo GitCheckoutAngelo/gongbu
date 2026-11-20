@@ -2,7 +2,7 @@
  * Daily sessions over the word list: which cards are due, which new words to introduce, and how a
  * grade updates progress. Pure functions (no storage, no React), so they're easy to test.
  */
-import type { CommonWord } from "../../data/commonWords";
+import type { CommonWord } from "../../data/vocabularyMeta";
 import type { CategoryId } from "../../data/vocabularyMeta";
 import type { Progress } from "../progress/types";
 import type { CardState, DrillMode, Grade, Scheduler } from "./types";
@@ -39,6 +39,14 @@ export function newCountToday(progress: Progress, mode: DrillMode, today: string
   return progress.newToday.date === today ? (progress.newToday.counts[mode] ?? 0) : 0;
 }
 
+/**
+ * The order new words are introduced: easier levels first, then the most-spoken words first (words with
+ * no spoken rank keep their list order, after the ranked ones of the same level).
+ */
+export function introductionOrder(a: CommonWord, b: CommonWord): number {
+  return a.level - b.level || (a.spokenRank ?? Infinity) - (b.spokenRank ?? Infinity) || 0;
+}
+
 /** Today's queue: due reviews (oldest first), then up to the daily number of new words. */
 export function buildSession(words: CommonWord[], progress: Progress, opts: SessionOptions): SessionCard[] {
   const pool = opts.category ? words.filter((w) => w.category === opts.category) : words;
@@ -47,6 +55,7 @@ export function buildSession(words: CommonWord[], progress: Progress, opts: Sess
   if (opts.extraNew) {
     return pool
       .filter((w) => !stateOf(w))
+      .sort(introductionOrder)
       .slice(0, opts.extraNew)
       .map((word) => ({ word, isNew: true, early: false }));
   }
@@ -77,6 +86,7 @@ export function buildSession(words: CommonWord[], progress: Progress, opts: Sess
   const newLeft = Math.max(0, progress.settings.newPerDay - newCountToday(progress, opts.mode, opts.today));
   const fresh = pool
     .filter((w) => !stateOf(w))
+    .sort(introductionOrder)
     .slice(0, newLeft)
     .map((word) => ({ word, isNew: true, early: false }));
 

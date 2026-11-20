@@ -43,6 +43,15 @@ export const PARTS_OF_SPEECH = [
 export type PartOfSpeech = (typeof PARTS_OF_SPEECH)[number]["id"];
 export const PART_OF_SPEECH_IDS = PARTS_OF_SPEECH.map((p) => p.id) as PartOfSpeech[];
 
+/** Where a word is mostly used: casual speech, anywhere, or writing and formal speech. */
+export const REGISTERS = [
+  { id: "casual", label: "casual", hint: "Mostly casual speech (friends, family, 반말)" },
+  { id: "neutral", label: "neutral", hint: "Fine anywhere" },
+  { id: "formal", label: "formal", hint: "Mostly writing or formal speech" },
+] as const;
+export type Register = (typeof REGISTERS)[number]["id"];
+export const REGISTER_IDS = REGISTERS.map((r) => r.id) as Register[];
+
 /** TOPIK levels: TOPIK I is 1급–2급, TOPIK II is 3급–6급. */
 export const LEVELS = [1, 2, 3, 4, 5, 6] as const;
 export type Level = (typeof LEVELS)[number];
@@ -78,3 +87,26 @@ export const LETTER_NOTES = {
 } as const;
 export type LetterNoteId = keyof typeof LETTER_NOTES;
 export const LETTER_NOTE_IDS = Object.keys(LETTER_NOTES) as LetterNoteId[];
+
+/** A word in the Common Words list (from the database), or one the learner added. */
+export interface CommonWord {
+  /** Stable id (saved in progress). Usually the spelling; a spelling with several senses gets e.g. "눈-snow". */
+  id: string;
+  spelling: string;
+  meaning: string;
+  pos: PartOfSpeech;
+  category: CategoryId;
+  level: Level;
+  romanization: string;
+  /** Standard pronunciation (표준 발음법) in Hangul, only when it differs from the spelling ("/" separates forms). */
+  pronounced?: string;
+  rules?: RuleId[];
+  letters?: LetterNoteId[];
+  note?: string;
+  /** Mostly casual speech, anywhere, or mostly formal (absent for words the learner added). */
+  register?: Register;
+  /** Position by how often it's spoken (1 = most), across the list; absent = unknown. */
+  spokenRank?: number;
+  /** "built-in": from the checked shared list. "added": suggested by Claude and approved by the learner. */
+  source: "built-in" | "added";
+}

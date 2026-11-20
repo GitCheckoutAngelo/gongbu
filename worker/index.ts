@@ -11,6 +11,6 @@ export default {
     const limited = await rateLimitResponse(request, env);
     if (limited) return limited;
     const settings = settingsFromEnv(env);
-    return handleApi(request, settings, servicesFromSettings(settings));
+    return handleApi(request, settings, servicesFromSettings(settings, env));
   },
 } satisfies ExportedHandler<Env>;

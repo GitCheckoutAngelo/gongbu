@@ -2,6 +2,9 @@ import { describe, expect, it, vi } from "vitest";
 import { handleApi, servicesFromSettings, type Services } from "./api";
 import { settingsFromEnv } from "./config";
 import { ServiceError } from "./errors";
+import { MemoryUserDataStore } from "./services/userData";
+import { MemoryWordStore } from "./services/words";
+import { MemoryGrammarStore } from "./services/grammar";
 
 const settings = settingsFromEnv({});
 
@@ -24,6 +27,9 @@ function services(overrides: Partial<{ [K in keyof Services]: ReturnType<Service
       },
     wordSuggester: () => overrides.wordSuggester ?? { suggest: vi.fn().mockResolvedValue([]) },
     aligner: () => overrides.aligner ?? { align: vi.fn().mockResolvedValue(null) },
+    userData: () => overrides.userData ?? new MemoryUserDataStore(),
+    words: () => overrides.words ?? new MemoryWordStore(),
+    grammar: () => overrides.grammar ?? new MemoryGrammarStore(),
   };
 }
 
@@ -49,9 +55,13 @@ describe("API", () => {
         { english: "I go to school.", start: 2, end: 4 },
       ],
     });
-    const res = await handleApi(post("/generate", { difficulty: "intermediate", length: "long", topic: "학교" }), settings, services({ paragraph: { generate } }));
+    const res = await handleApi(
+      post("/generate", { difficulty: "intermediate", length: "long", topic: "학교" }),
+      settings,
+      services({ paragraph: { generate } }),
+    );
     expect(res.status).toBe(200);
-    expect(generate).toHaveBeenCalledWith("intermediate", "long", "학교");
+    expect(generate).toHaveBeenCalledWith("intermediate", "long", "학교", undefined);
     expect(await res.json()).toEqual({
       paragraph: "저는 학생이에요. 학교에 가요.",
       translation: "I'm a student. I go to school.",
@@ -161,5 +171,107 @@ describe("API", () => {
 
   it("404s unknown routes", async () => {
     expect((await handleApi(new Request("https://app.test/api/nope"), settings, services())).status).toBe(404);
+  });
+
+  it("serves the shared word list with a version, and 304 when the browser's copy is current", async () => {
+    const word = {
+      id: "사과",
+      spelling: "사과",
+      meaning: "apple",
+      pos: "noun",
+      category: "food",
+      level: 1,
+      romanization: "sagwa",
+      register: "neutral",
+    };
+    const words = new MemoryWordStore([word], "1-100");
+    const res = await handleApi(new Request("https://app.test/api/words"), settings, services({ words }));
+    expect(res.status).toBe(200);
+    expect(res.headers.get("ETag")).toBe('"1-100"');
+    expect(await res.json()).toEqual({ words: [word], version: "1-100" });
+    const again = new Request("https://app.test/api/words", { headers: { "If-None-Match": '"1-100"' } });
+    expect((await handleApi(again, settings, services({ words }))).status).toBe(304);
+  });
+
+  it("practises a grammar pattern: level from the pattern, dialogue for spoken patterns, highlights back", async () => {
+    const pattern = {
+      id: "-(으)ㄹ까요?",
+      form: "-(으)ㄹ까요?",
+      title: "shall we…?",
+      explain: "Use it to suggest doing something together: 같이 갈까요? = shall we go together?",
+      sample: { ko: "갈까요?", en: "shall we go?" },
+      meaning: "shall we…?",
+      level: 1,
+      group: "asking" as const,
+      register: "spoken" as const,
+      attaches: "Verb stem + -을까요 / -ㄹ까요.",
+      examples: [],
+      similar: [],
+    };
+    const generate = vi.fn().mockResolvedValue({
+      paragraph: "커피 마실까요? 좋아요.",
+      translation: "",
+      glosses: ["", "", ""],
+      sentences: [],
+      highlights: [1, 9],
+    });
+    const res = await handleApi(
+      post("/generate", {
+        difficulty: "advanced",
+        length: "short",
+        grammar: { pattern: pattern.id, setting: "At a café" },
+      }),
+      settings,
+      services({ paragraph: { generate }, grammar: new MemoryGrammarStore([pattern]) }),
+    );
+    expect(res.status).toBe(200);
+    expect(generate).toHaveBeenCalledWith("beginner", "short", undefined, {
+      pattern,
+      setting: "At a café",
+      politeness: "polite",
+      format: "dialogue",
+    });
+    const body = (await res.json()) as { highlights: number[]; practice: { format: string } };
+    expect(body.highlights).toEqual([1]); // out-of-range index dropped
+    expect(body.practice.format).toBe("dialogue");
+
+    const unknown = await handleApi(
+      post("/generate", { grammar: { pattern: "nope" } }),
+      settings,
+      services({ grammar: new MemoryGrammarStore([pattern]) }),
+    );
+    expect(unknown.status).toBe(422);
+  });
+
+  it("serves a pattern's ready-made conversations (an old merged id finds its family)", async () => {
+    const pattern = {
+      id: "N에서 N까지",
+      form: "N에서 N까지",
+      title: "from … to …",
+      explain: "",
+      sample: { ko: "집에서 학교까지", en: "from home to school" },
+      meaning: "from … to …",
+      level: 1,
+      group: "particles" as const,
+      register: "both" as const,
+      attaches: "",
+      examples: [],
+      similar: [],
+      aliases: ["N부터 N까지"],
+    };
+    const grammar = new MemoryGrammarStore([pattern], "1", [{ patternId: pattern.id }]);
+    const res = await handleApi(
+      new Request("https://app.test/api/grammar/conversations?pattern=" + encodeURIComponent("N부터 N까지")),
+      settings,
+      services({ grammar }),
+    );
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ pattern: "N에서 N까지", conversations: [{ patternId: "N에서 N까지" }] });
+    const missing = await handleApi(
+      new Request("https://app.test/api/grammar/conversations?pattern=nope"),
+      settings,
+      services({ grammar }),
+    );
+    expect(missing.status).toBe(404);
   });
 });

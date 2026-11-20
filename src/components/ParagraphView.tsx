@@ -1,5 +1,12 @@
 import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from "react";
 import type { Word } from "../types";
+
+/** A speaker's turn in a dialogue: words [start, end). */
+export interface DialogueRange {
+  start: number;
+  end: number;
+  speaker: "A" | "B";
+}
 import { IconPlay, IconSpeaker } from "./words/icons";
 
 interface Props {
@@ -30,6 +37,10 @@ interface Props {
   highlightSentence?: number;
   /** Pointer moved onto a word's sentence (-1 when it leaves the paragraph). */
   onHoverSentence?: (sentence: number) => void;
+  /** Grammar practice: indices of the words that use the pattern (marked). */
+  highlights?: ReadonlySet<number>;
+  /** Dialogue: each speaker's turn (word range), shown as its own row with the speaker's label. */
+  turns?: readonly DialogueRange[];
 }
 
 const POPOVER_GAP = 6;
@@ -50,6 +61,8 @@ export function ParagraphView({
   pausedSentence = -1,
   highlightSentence = -1,
   onHoverSentence,
+  highlights,
+  turns,
 }: Props) {
   const interactive = Boolean(onPlayFrom && onPlayWord);
   const [selected, setSelected] = useState(-1);
@@ -121,45 +134,69 @@ export function ParagraphView({
 
   const current = words[selected];
 
+  /** One word (ruby with romanization), with its highlight classes and popover trigger. */
+  const renderWord = (i: number) => {
+    const word = words[i];
+    return (
+      <span
+        key={i}
+        className={`word-slot${highlightSentence >= 0 && sentenceOf?.[i] === highlightSentence ? " in-sentence" : ""}${
+          readingSentence >= 0 && readingSentenceOf?.[i] === readingSentence ? " reading-sentence" : ""
+        }${pausedSentence >= 0 && readingSentenceOf?.[i] === pausedSentence ? " paused-sentence" : ""}`}
+        onMouseEnter={sentenceOf ? () => onHoverSentence?.(sentenceOf[i] ?? -1) : undefined}
+      >
+        <ruby
+          ref={(el) => {
+            wordRefs.current[i] = el;
+          }}
+          className={`word${i === activeIndex ? " speaking" : ""}${i === pausedIndex ? " paused" : ""}${interactive ? " clickable" : ""}${i === selected ? " selected" : ""}${highlights?.has(i) ? " pattern-hit" : ""}`}
+          aria-current={i === activeIndex || undefined}
+          {...(interactive && {
+            role: "button",
+            tabIndex: 0,
+            title: word.english || undefined,
+            "aria-haspopup": "dialog" as const,
+            "aria-expanded": i === selected,
+            onClick: () => toggle(i),
+            onKeyDown: (e: KeyboardEvent) => onWordKey(e, i),
+          })}
+        >
+          {word.korean}
+          <rt lang="ko-Latn" aria-hidden={!showRomanized || undefined}>
+            {word.romanized}
+          </rt>
+        </ruby>{" "}
+      </span>
+    );
+  };
+
   return (
     <div className="paragraph-wrap" ref={wrapRef}>
-      <p
-        className={`korean-text${showRomanized ? "" : " hide-romanization"}`}
-        lang="ko"
-        onMouseLeave={() => onHoverSentence?.(-1)}
-      >
-        {words.map((word, i) => (
-          <span
-            key={i}
-            className={`word-slot${highlightSentence >= 0 && sentenceOf?.[i] === highlightSentence ? " in-sentence" : ""}${
-              readingSentence >= 0 && readingSentenceOf?.[i] === readingSentence ? " reading-sentence" : ""
-            }${pausedSentence >= 0 && readingSentenceOf?.[i] === pausedSentence ? " paused-sentence" : ""}`}
-            onMouseEnter={sentenceOf ? () => onHoverSentence?.(sentenceOf[i] ?? -1) : undefined}
-          >
-            <ruby
-              ref={(el) => {
-                wordRefs.current[i] = el;
-              }}
-              className={`word${i === activeIndex ? " speaking" : ""}${i === pausedIndex ? " paused" : ""}${interactive ? " clickable" : ""}${i === selected ? " selected" : ""}`}
-              aria-current={i === activeIndex || undefined}
-              {...(interactive && {
-                role: "button",
-                tabIndex: 0,
-                title: word.english || undefined,
-                "aria-haspopup": "dialog" as const,
-                "aria-expanded": i === selected,
-                onClick: () => toggle(i),
-                onKeyDown: (e: KeyboardEvent) => onWordKey(e, i),
-              })}
-            >
-              {word.korean}
-              <rt lang="ko-Latn" aria-hidden={!showRomanized || undefined}>
-                {word.romanized}
-              </rt>
-            </ruby>{" "}
-          </span>
-        ))}
-      </p>
+      {turns?.length ? (
+        // A dialogue: one row per turn, the speaker's label in its own column (wrapped lines stay aligned).
+        <div
+          className={`korean-text dialogue${showRomanized ? "" : " hide-romanization"}`}
+          lang="ko"
+          onMouseLeave={() => onHoverSentence?.(-1)}
+        >
+          {turns.map((t) => (
+            <div key={t.start} className={`turn turn-${t.speaker}`}>
+              <span className="speaker-badge" aria-label={`Speaker ${t.speaker}`}>
+                {t.speaker}
+              </span>
+              <p className="turn-words">{words.slice(t.start, t.end).map((_, k) => renderWord(t.start + k))}</p>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p
+          className={`korean-text${showRomanized ? "" : " hide-romanization"}`}
+          lang="ko"
+          onMouseLeave={() => onHoverSentence?.(-1)}
+        >
+          {words.map((_, i) => renderWord(i))}
+        </p>
+      )}
 
       {interactive && current && (
         <div

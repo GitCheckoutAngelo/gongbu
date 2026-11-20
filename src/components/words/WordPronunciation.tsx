@@ -1,4 +1,4 @@
-import type { CommonWord } from "../../data/commonWords";
+import type { CommonWord } from "../../data/vocabularyMeta";
 import { ruleById } from "../../data/rules";
 import { LETTER_NOTES } from "../../data/vocabularyMeta";
 import { Link } from "../../router";

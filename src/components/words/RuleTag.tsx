@@ -6,7 +6,7 @@ import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from
 import { createPortal } from "react-dom";
 import { ruleById } from "../../data/rules";
 import { LETTER_NOTES, type LetterNoteId } from "../../data/vocabularyMeta";
-import { lookupWord } from "../../data/words";
+import { lookupExample } from "../../data/exampleWords";
 import { Link } from "../../router";
 import { KoText } from "../KoText";
 import { SpeakButton } from "../SpeakButton";
@@ -67,7 +67,7 @@ function RuleSummary({ id, word, showMore }: { id: string; word?: TaggedWord; sh
   // This word's own change first; another example only if it adds something.
   const own = word?.pronounced ? word.pronounced.split("/").find((f) => f !== word.spelling) : undefined;
   const other = rule?.examples
-    .map((e) => lookupWord(e.word))
+    .map((e) => lookupExample(e.word))
     .find((w) => w.pronounced && w.spelling !== word?.spelling);
 
   return (

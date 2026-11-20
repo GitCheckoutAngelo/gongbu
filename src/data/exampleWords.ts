@@ -1,5 +1,6 @@
 /**
- * Every Korean example word used anywhere in the app, stored once.
+ * Every Korean example word on the reference pages (Hangul chart, Rules), stored once. Not the vocabulary
+ * list: that's the Common Words list (data/wordSeed.json, served from the database).
  * Letter examples (hangul.ts), rule examples and sound-change rows (rules.ts) refer to words by spelling,
  * and TypeScript rejects a spelling that isn't listed here.
  *
@@ -8,13 +9,13 @@
  * - `romanization`: Revised Romanization (hand-checked). RR does not show tensification, and keeps ㅎ after
  *   ㄱ/ㄷ/ㅂ in nouns.
  */
-export interface Word {
+export interface ExampleWord {
   pronounced?: string;
   romanization: string;
   meaning: string;
 }
 
-export const WORDS = {
+export const EXAMPLE_WORDS = {
   // ---- single syllables / basics
   아: { romanization: "a", meaning: "ah!" },
   가: { romanization: "ga", meaning: "the syllable ga" },
@@ -240,10 +241,10 @@ export const WORDS = {
   좋습니다: { pronounced: "조씀니다", romanization: "joseumnida", meaning: "(it's) good (formal)" },
   히읗: { pronounced: "히읃", romanization: "hieut", meaning: "the letter ㅎ" },
   전화: { romanization: "jeonhwa", meaning: "telephone; call" },
-} satisfies Record<string, Word>;
+} satisfies Record<string, ExampleWord>;
 
-export type WordKey = keyof typeof WORDS;
+export type ExampleWordKey = keyof typeof EXAMPLE_WORDS;
 
-export function lookupWord(spelling: WordKey): Word & { spelling: WordKey } {
-  return { spelling, ...WORDS[spelling] };
+export function lookupExample(spelling: ExampleWordKey): ExampleWord & { spelling: ExampleWordKey } {
+  return { spelling, ...EXAMPLE_WORDS[spelling] };
 }

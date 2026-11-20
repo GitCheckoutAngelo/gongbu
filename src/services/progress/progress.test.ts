@@ -77,7 +77,34 @@ describe("local storage store", () => {
     expect(new LocalStorageProgressStore(() => undefined).save(emptyProgress())).toBe(false);
   });
 
-  it("is the default store", () => {
-    expect(getProgressStore().id).toBe("local");
+  it("the default store is the cloud-backed one (kept locally too)", () => {
+    expect(getProgressStore().id).toBe("cloud");
+  });
+});
+
+describe("merging progress from two devices", () => {
+  it("keeps the most recent review of each card, every added word, and the newest settings", async () => {
+    const { mergeProgress } = await import("./merge");
+    const a = emptyProgress();
+    const b = emptyProgress();
+    a.cards["학교|read"] = sm2.review(undefined, "good", "2026-03-10");
+    b.cards["학교|read"] = sm2.review(a.cards["학교|read"], "good", "2026-03-12");
+    b.cards["사과|read"] = sm2.review(undefined, "again", "2026-03-12");
+    a.addedWords.push(sampleProgress().addedWords[0]);
+    a.settings.newPerDay = 5;
+    a.settingsChangedAt = 2000;
+    b.settings.newPerDay = 20;
+    b.settingsChangedAt = 1000;
+    a.newToday = { date: "2026-03-12", counts: { read: 2 } };
+    b.newToday = { date: "2026-03-12", counts: { read: 1, listen: 3 } };
+
+    const merged = mergeProgress(a, b);
+    expect(merged.cards["학교|read"]).toEqual(b.cards["학교|read"]);
+    expect(merged.cards["사과|read"]).toEqual(b.cards["사과|read"]);
+    expect(merged.addedWords.map((w) => w.id)).toEqual(["added:공책"]);
+    expect(merged.settings.newPerDay).toBe(5);
+    expect(merged.newToday).toEqual({ date: "2026-03-12", counts: { read: 2, listen: 3 } });
+    // Same result whichever side is "local".
+    expect(mergeProgress(b, a).cards).toEqual(merged.cards);
   });
 });

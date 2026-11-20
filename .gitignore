@@ -20,3 +20,9 @@ Thumbs.db
 .dev.vars.*
 !.dev.vars.example
 .wrangler/
+
+# Word-list scripts: local Python environment and downloaded source data
+scripts/wordlist/.venv/
+scripts/wordlist/sources/
+scripts/wordlist/out/
+scripts/grammar/out/

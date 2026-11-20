@@ -19,6 +19,9 @@ export interface Env {
   // rate-limit bindings (wrangler.jsonc "ratelimits"); absent in unit tests
   AI_RATE_LIMITER?: RateLimit;
   TTS_RATE_LIMITER?: RateLimit;
+  DATA_RATE_LIMITER?: RateLimit;
+  // D1 database for per-learner data (wrangler.jsonc "d1_databases"); absent in unit tests
+  DB?: D1Database;
 }
 
 export interface Settings {

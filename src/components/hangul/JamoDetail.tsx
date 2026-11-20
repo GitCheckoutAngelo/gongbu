@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, type ReactNode } from "react";
 import { CATEGORY_TITLES } from "../../data/hangul";
 import { alsoInvolvedRules, changeRowsFor, onlyBasic, type ChangeRow } from "../../data/soundChanges";
 import type { Jamo } from "../../data/types";
-import { lookupWord } from "../../data/words";
+import { lookupExample } from "../../data/exampleWords";
 import { Link } from "../../router";
 import { KoText } from "../KoText";
 import { SpeakButton } from "../SpeakButton";
@@ -60,7 +60,15 @@ function PositionCard(props: {
 }
 
 /** The generated table, or a one-line summary when nothing changes the sound. */
-function Changes({ rows, position, unchanged }: { rows: ChangeRow[]; position: ChangeRow["position"]; unchanged: string }) {
+function Changes({
+  rows,
+  position,
+  unchanged,
+}: {
+  rows: ChangeRow[];
+  position: ChangeRow["position"];
+  unchanged: string;
+}) {
   if (rows.length === 0) return <p className="position-text muted">{unchanged}</p>;
   if (onlyBasic(rows))
     return (
@@ -75,7 +83,7 @@ function ExamplesTab({ jamo }: { jamo: Jamo }) {
   return (
     <ul className="example-words">
       {jamo.examples.map((key) => {
-        const w = lookupWord(key);
+        const w = lookupExample(key);
         return (
           <li key={key}>
             <SpeakButton text={w.spelling} />
@@ -238,9 +246,7 @@ export function JamoDetail({ jamo, tab, onTabChange, onClose }: Props) {
 
         {alsoInvolved.length > 0 && (
           <p className="also-involved small">
-            <span className="muted">
-              {jamo.char} also causes or results from changes in:{" "}
-            </span>
+            <span className="muted">{jamo.char} also causes or results from changes in: </span>
             {alsoInvolved.map((rule, i) => (
               <span key={rule.id}>
                 {i > 0 && ", "}

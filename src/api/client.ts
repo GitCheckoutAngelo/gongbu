@@ -1,10 +1,15 @@
 import { config } from "../config";
-import type { GenerateRequest, GenerateResponse } from "../types";
+import type { Progress } from "../services/progress/types";
+import { getSyncKey } from "../services/sync/syncKey";
+import type { Difficulty, GenerateRequest, GenerateResponse, Length } from "../types";
 import type { RuleId } from "../data/types";
 import type { CategoryId, LetterNoteId, Level, LevelBand, PartOfSpeech } from "../data/vocabularyMeta";
 
 export class ApiError extends Error {
-  constructor(message: string, readonly status?: number) {
+  constructor(
+    message: string,
+    readonly status?: number,
+  ) {
     super(message);
     this.name = "ApiError";
   }
@@ -119,4 +124,66 @@ export async function suggestWords(
 ): Promise<SuggestedWord[]> {
   const res = await request("/words/suggest", { category, band, count, exclude });
   return ((await res.json()) as { words: SuggestedWord[] }).words;
+}
+
+// ---------- Per-learner data (sent with this browser's sync key) ----------
+
+async function dataRequest<T>(method: "GET" | "POST" | "PUT" | "DELETE", path: string, body?: unknown): Promise<T> {
+  let res: Response;
+  try {
+    res = await fetch(`${config.apiBaseUrl}${path}`, {
+      method,
+      headers: { "X-Sync-Key": getSyncKey(), ...(body !== undefined && { "Content-Type": "application/json" }) },
+      ...(body !== undefined && { body: JSON.stringify(body) }),
+    });
+  } catch {
+    throw new ApiError("Couldn't reach the server. Check your connection and try again.");
+  }
+  if (!res.ok) throw new ApiError(await errorMessage(res), res.status);
+  return (await res.json()) as T;
+}
+
+/** Common Words progress saved online for this browser (null if none yet). Not validated: parse it. */
+export async function fetchCloudProgress(): Promise<unknown> {
+  return (await dataRequest<{ progress: unknown }>("GET", "/progress")).progress;
+}
+
+/** Upload progress; the server merges it with what it had and returns the result (not validated). */
+export async function uploadCloudProgress(progress: Progress): Promise<unknown> {
+  return (await dataRequest<{ progress: unknown }>("PUT", "/progress", { progress })).progress;
+}
+
+export interface ParagraphSettings {
+  difficulty: Difficulty;
+  length: Length;
+  topic: string;
+}
+
+export interface SavedParagraphSummary extends ParagraphSettings {
+  id: string;
+  /** ms since 1970 */
+  createdAt: number;
+  /** The paragraph's first characters. */
+  preview: string;
+}
+
+export async function listSavedParagraphs(): Promise<SavedParagraphSummary[]> {
+  return (await dataRequest<{ paragraphs: SavedParagraphSummary[] }>("GET", "/paragraphs")).paragraphs;
+}
+
+export async function saveParagraph(
+  settings: ParagraphSettings,
+  paragraph: GenerateResponse,
+): Promise<SavedParagraphSummary> {
+  return (await dataRequest<{ saved: SavedParagraphSummary }>("POST", "/paragraphs", { settings, paragraph })).saved;
+}
+
+export async function openSavedParagraph(
+  id: string,
+): Promise<{ saved: SavedParagraphSummary; settings: ParagraphSettings; paragraph: GenerateResponse }> {
+  return dataRequest("GET", `/paragraphs/${encodeURIComponent(id)}`);
+}
+
+export async function deleteSavedParagraph(id: string): Promise<void> {
+  await dataRequest("DELETE", `/paragraphs/${encodeURIComponent(id)}`);
 }

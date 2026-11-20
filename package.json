@@ -8,7 +8,6 @@
     "build": "tsc -p tsconfig.json && tsc -p worker/tsconfig.json && vite build",
     "typecheck": "tsc -p tsconfig.json && tsc -p worker/tsconfig.json",
     "test": "vitest run",
-    "words:romanize": "vite-node --config vitest.config.ts scripts/romanize-common-words.ts",
     "preview": "npm run build && vite preview",
     "deploy": "npm run build && wrangler deploy"
   },

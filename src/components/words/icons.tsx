@@ -130,6 +130,18 @@ export const IconChevronDown = () => (
   </Svg>
 );
 
+export const IconChevronLeft = () => (
+  <Svg>
+    <path d="M15 6l-6 6 6 6" />
+  </Svg>
+);
+
+export const IconChevronRight = () => (
+  <Svg>
+    <path d="M9 6l6 6-6 6" />
+  </Svg>
+);
+
 /** Signal bars: `level` of 3 filled (difficulty). */
 export function IconBars({ level }: { level: 1 | 2 | 3 }) {
   return (
@@ -177,3 +189,33 @@ export function IconFace({ grade }: { grade: keyof typeof FACE_MOUTHS }) {
     </Svg>
   );
 }
+
+/** A bookmark; filled when the item is saved. */
+export const IconBookmark = ({ filled = false }: { filled?: boolean }) => (
+  <Svg fill={filled ? "currentColor" : "none"}>
+    <path d="M7 4h10a1 1 0 0 1 1 1v15l-6-4-6 4V5a1 1 0 0 1 1-1z" />
+  </Svg>
+);
+
+/** A trash can (delete). */
+export const IconTrash = () => (
+  <Svg>
+    <path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3" />
+  </Svg>
+);
+
+/** Sort direction: an arrow beside bars getting longer (ascending) or shorter (descending). */
+export const IconSortDirection = ({ descending = false }: { descending?: boolean }) => (
+  <Svg>
+    <path d={descending ? "M6 4v16M3 17l3 3 3-3" : "M6 20V4M3 7l3-3 3 3"} />
+    <path d={descending ? "M12 6h9M12 12h6M12 18h3" : "M12 6h3M12 12h6M12 18h9"} />
+  </Svg>
+);
+
+/** A map pin (a place or setting). */
+export const IconPin = () => (
+  <Svg>
+    <path d="M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11z" />
+    <circle cx="12" cy="10" r="2.2" />
+  </Svg>
+);

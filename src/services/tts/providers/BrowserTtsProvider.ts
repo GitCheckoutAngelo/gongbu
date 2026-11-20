@@ -86,9 +86,14 @@ export class BrowserTtsProvider implements TtsProvider {
     const run = ++this.runId;
     if (!this.synth) throw new TtsError(this.unavailableMessage());
 
-    const voice = this.findVoice(await this.loadVoices());
+    const voices = await this.loadVoices();
+    const main = this.findVoice(voices);
     if (run !== this.runId) return "stopped";
-    if (!voice) throw new TtsError(NO_VOICE_MESSAGE);
+    if (!main) throw new TtsError(NO_VOICE_MESSAGE);
+    // Dialogues: the partner speaks in another Korean voice, or (only one installed) the same voice lower.
+    const other = options.speaker === "partner" ? voices.filter(isKorean).find((v) => v !== main) : undefined;
+    const voice = other ?? main;
+    const pitch = options.speaker === "partner" && !other ? 0.75 : 1;
 
     const { onWord, onProgress } = options;
     let onStart = options.onStart; // fires once, on the first sentence
@@ -109,7 +114,7 @@ export class BrowserTtsProvider implements TtsProvider {
               onProgress?.(index);
             }
           : undefined;
-      await this.speakOne(chunk.text, voice, rate, onBoundary, onStart);
+      await this.speakOne(chunk.text, voice, rate, onBoundary, onStart, pitch);
       onStart = undefined;
       if (run !== this.runId) return "stopped";
     }
@@ -150,6 +155,7 @@ export class BrowserTtsProvider implements TtsProvider {
     rate: number,
     onBoundary?: (charIndex: number) => void,
     onStart?: () => void,
+    pitch = 1,
   ): Promise<void> {
     return new Promise((resolve, reject) => {
       // "Started" fires once: on the start event, or (if a browser skips it) the first word or the end.
@@ -164,6 +170,7 @@ export class BrowserTtsProvider implements TtsProvider {
       utterance.voice = voice;
       utterance.lang = voice.lang || "ko-KR";
       utterance.rate = rate;
+      utterance.pitch = pitch;
       if (onBoundary) {
         utterance.onboundary = (event) => {
           started();

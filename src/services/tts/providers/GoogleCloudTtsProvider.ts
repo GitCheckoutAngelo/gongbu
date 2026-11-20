@@ -1,6 +1,12 @@
 import { alignWords, synthesizeSpeech, synthesizeTimedSpeech } from "../../../api/client";
-import { envelopeOf, estimateWordTimes, snapToSpeech, wordTimesFromEnvelope, type Envelope } from "../estimateWordTimes";
-import { getGoogleVoice } from "../googleVoice";
+import {
+  envelopeOf,
+  estimateWordTimes,
+  snapToSpeech,
+  wordTimesFromEnvelope,
+  type Envelope,
+} from "../estimateWordTimes";
+import { getGoogleVoice, partnerVoice } from "../googleVoice";
 import { registerTtsProvider } from "../providerStore";
 import { TtsError, type SpeakOptions, type SpeakResult, type TtsProvider } from "../TtsProvider";
 
@@ -89,7 +95,14 @@ export class GoogleCloudTtsProvider implements TtsProvider {
     const startWord = options.startWord ?? 0;
     const { onWord, onProgress } = options;
     const wantTimes = !!(options.words?.length && (onWord || onProgress || startWord > 0));
-    const { url, wordTimes, envelope, aligned } = await this.getAudio(text, rate, wantTimes ? options.words! : null);
+    const voice = options.speaker === "partner" ? await partnerVoice() : getGoogleVoice();
+    if (run !== this.runId) return "stopped";
+    const { url, wordTimes, envelope, aligned } = await this.getAudio(
+      text,
+      rate,
+      wantTimes ? options.words! : null,
+      voice,
+    );
     if (run !== this.runId) return "stopped"; // stopped while loading
     if (!wantTimes) return this.play(url, null, options.onStart);
     const words = options.words!;
@@ -139,8 +152,14 @@ export class GoogleCloudTtsProvider implements TtsProvider {
     this.finishCurrent = undefined;
   }
 
-  private getAudio(text: string, rate: number, words: string[] | null): Promise<CachedAudio> {
-    const voice = getGoogleVoice();
+  /** Fetch (and cache) a dialogue turn's audio ahead of time. */
+  prefetch(text: string, rate: number, options: SpeakOptions = {}): void {
+    void (options.speaker === "partner" ? partnerVoice() : Promise.resolve(getGoogleVoice()))
+      .then((voice) => this.getAudio(text, rate, options.words?.length ? options.words : null, voice))
+      .catch(() => undefined);
+  }
+
+  private getAudio(text: string, rate: number, words: string[] | null, voice: string): Promise<CachedAudio> {
     const key = `${words ? "timed" : "plain"}|${voice}|${rate}|${text}`;
     const cached = this.cache.get(key);
     if (cached) {

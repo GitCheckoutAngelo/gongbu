@@ -1,0 +1,195 @@
+{
+  "_about": "Hand review of Claude's enriched words. Keyed by the enriched key (spelling|homograph|국립국어원 POS). Fields here replace Claude's; \"pronounced\": \"\" removes a pronunciation; \"exclude\" holds a word back (with the reason).",
+  "필요||명": {
+    "pronounced": "피료",
+    "rules": [
+      "linking"
+    ]
+  },
+  "떨어지다||동": {
+    "pronounced": "떠러지다",
+    "rules": [
+      "linking"
+    ]
+  },
+  "걱정||명": {
+    "pronounced": "걱쩡",
+    "rules": [
+      "tensification"
+    ]
+  },
+  "아무것||명": {
+    "pronounced": "아무걷",
+    "rules": [
+      "final-sounds"
+    ]
+  },
+  "거짓말||명": {
+    "pronounced": "거진말",
+    "rules": [
+      "final-sounds",
+      "nasalization"
+    ],
+    "note": "Common: 거짓말을 하다 (to tell a lie)."
+  },
+  "죽음|1|명": {
+    "pronounced": "주금",
+    "rules": [
+      "linking"
+    ],
+    "note": "Noun form of 죽다."
+  },
+  "전혀|1|부": {
+    "pronounced": "",
+    "rules": [],
+    "note": "Used with negative verbs: 전혀 모르다 (to not know at all). Often softened to [저녀] in fast speech."
+  },
+  "결혼하다||동": {
+    "pronounced": "",
+    "rules": [],
+    "note": "Pattern: ~와/과 결혼하다 (to marry someone). Often softened to [겨로나다] in fast speech."
+  },
+  "재밌다||형": {
+    "meaning": "to be fun (casual, short for 재미있다)",
+    "rules": [
+      "final-sounds",
+      "tensification"
+    ]
+  },
+  "죄송하다||형": {
+    "meaning": "to be sorry (polite)"
+  },
+  "예|6|감": {
+    "meaning": "yes (formal)"
+  },
+  "이미|1|부": {
+    "meaning": "already (it's done; by now)"
+  },
+  "정말로||부": {
+    "meaning": "really; truly (emphatic)"
+  },
+  "죽다|1|동": {
+    "meaning": "to die"
+  },
+  "죽이다|1|동": {
+    "meaning": "to kill"
+  },
+  "내다|2|동": {
+    "meaning": "to pay; to put out; to submit"
+  },
+  "들다|1|동": {
+    "meaning": "to go in; to cost; to stay (at)",
+    "note": "마음에 들다 = to like (literally: to enter one's heart)."
+  },
+  "수도|9|명": {
+    "exclude": "spoken rank inflated: the analyser counted forms of other words: 수도 있다 (수 + 도)"
+  },
+  "볼|1|명": {
+    "exclude": "spoken rank inflated: the analyser counted forms of other words: 볼 수 있다 (보다)"
+  },
+  "절|1|명": {
+    "exclude": "spoken rank inflated: the analyser counted forms of other words: 절 = 저를"
+  },
+  "절|2|명": {
+    "exclude": "spoken rank inflated: the analyser counted forms of other words: 절 = 저를"
+  },
+  "올|2|명": {
+    "exclude": "spoken rank inflated: the analyser counted forms of other words: 올 (오다)"
+  },
+  "알|1|명": {
+    "exclude": "spoken rank inflated: the analyser counted forms of other words: 알 수 (알다)"
+  },
+  "죽|7|명": {
+    "exclude": "spoken rank inflated: the analyser counted forms of other words: 죽 (죽다)"
+  },
+  "간|10|의": {
+    "exclude": "spoken rank inflated: the analyser counted forms of other words: 간 (가다)"
+  },
+  "요|3|관": {
+    "exclude": "spoken rank inflated: the analyser counted forms of other words: 요 (polite ending)"
+  },
+  "씨|1|명": {
+    "exclude": "spoken rank inflated: the analyser counted forms of other words: 씨 (the title)"
+  },
+  "이상|9|명": {
+    "exclude": "spoken rank inflated: the analyser counted forms of other words: 이상 (more than / strange)"
+  },
+  "것|1|의": {
+    "meaning": "thing; the one (standard form; 거 in speech)"
+  },
+  "수|2|의": {
+    "meaning": "way; possibility (as in -ㄹ 수 있다)"
+  },
+  "그래|1|감": {
+    "meaning": "yeah; okay (casual reply)"
+  },
+  "때|1|명": {
+    "meaning": "time (when something happens)"
+  },
+  "그냥||부": {
+    "meaning": "just (for no reason; as it is)"
+  },
+  "고맙다|1|형": {
+    "meaning": "to be thankful (native Korean word)"
+  },
+  "지다|3|동": {
+    "meaning": "to lose (a game or fight)"
+  },
+  "미안하다||형": {
+    "meaning": "to be sorry (casual or neutral)"
+  },
+  "잠깐||부": {
+    "meaning": "for a moment (common in speech)"
+  },
+  "곳|1|명": {
+    "meaning": "place (a location)"
+  },
+  "돕다||동": {
+    "meaning": "to help (in general; 도와주다 for helping someone)"
+  },
+  "감사하다|5|형": {
+    "meaning": "to be thankful (Sino-Korean, more formal)"
+  },
+  "이유|4|명": {
+    "meaning": "reason (the reason why)"
+  },
+  "마음|1|명": {
+    "meaning": "mind (heart, feelings)"
+  },
+  "멋지다||형": {
+    "meaning": "to be cool (stylish, great)"
+  },
+  "전부|5|부": {
+    "meaning": "all (the whole lot)"
+  },
+  "세상|1|명": {
+    "meaning": "world (society, life)"
+  },
+  "참|1|부": {
+    "meaning": "really (very; warm or literary)"
+  },
+  "속|1|명": {
+    "meaning": "inside (the inner part; stomach)"
+  },
+  "상황|2|명": {
+    "meaning": "situation (circumstances)"
+  },
+  "방금|1|부": {
+    "meaning": "just now (a moment ago)"
+  },
+  "정신|12|명": {
+    "meaning": "mind (consciousness, spirit)"
+  },
+  "부모|1|명": {
+    "meaning": "parents (plain; 부모님 is honorific)"
+  },
+  "그저||부": {
+    "meaning": "just; merely (literary)"
+  },
+  "세계|2|명": {
+    "meaning": "world (the globe; international)"
+  },
+  "매우|1|부": {
+    "meaning": "very (formal/written; 아주 in speech)"
+  }
+}

@@ -25,7 +25,19 @@
   // namespace_id is any number unique within your Cloudflare account.
   "ratelimits": [
     { "name": "AI_RATE_LIMITER", "namespace_id": "1001", "simple": { "limit": 20, "period": 60 } },
-    { "name": "TTS_RATE_LIMITER", "namespace_id": "1002", "simple": { "limit": 60, "period": 60 } }
+    { "name": "TTS_RATE_LIMITER", "namespace_id": "1002", "simple": { "limit": 60, "period": 60 } },
+    // Writes to saved paragraphs and progress (cheap, but limited so one caller can't flood the database).
+    { "name": "DATA_RATE_LIMITER", "namespace_id": "1003", "simple": { "limit": 60, "period": 60 } }
+  ],
+  // Per-learner data: saved Reader paragraphs and Common Words progress. Schema: migrations/.
+  // Apply new migrations with `npx wrangler d1 migrations apply gongbu --remote` (and --local for dev).
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "gongbu",
+      "database_id": "d719005b-18fc-4499-8697-edb574cc0cdd",
+      "migrations_dir": "migrations"
+    }
   ],
   "observability": { "enabled": true }
 }

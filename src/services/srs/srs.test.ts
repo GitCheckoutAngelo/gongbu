@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { CommonWord } from "../../data/commonWords";
+import type { CommonWord } from "../../data/vocabularyMeta";
 import { emptyProgress, type Progress } from "../progress/types";
 import { addDays, daysBetween, localDate } from "./dates";
 import { getScheduler, listSchedulers } from "./registry";

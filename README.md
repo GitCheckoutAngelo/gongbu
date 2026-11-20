@@ -146,6 +146,13 @@ Secrets come from `.dev.vars`. To try it on your phone on the same Wi-Fi, run
 
 Check the API with <http://localhost:5173/api/health>.
 
+Saved paragraphs and progress sync use a local copy of the D1 database (in `.wrangler/`). Create its
+tables once, and again whenever a new file appears in `migrations/`:
+
+```bash
+npx wrangler d1 migrations apply gongbu --local
+```
+
 `npm run preview` builds everything and serves the production build locally, still in the Workers
 runtime.
 
@@ -154,12 +161,18 @@ runtime.
 ```bash
 npm test               # Worker + frontend logic/data tests (Vitest); Claude and Google are mocked, no keys needed
 npm run typecheck      # type-checks the app and the Worker
-npm run words:romanize # regenerate Common Words romanizations after editing the word list
 ```
 
 ## 6. Using the app
 
 - Pick **difficulty**, **length** and an optional **topic**, then press **Generate**.
+- **Grammar practice** (the switch at the top of the form): choose one of 224 grammar patterns (TOPIK 1-4,
+  grouped by what you want to say) and who you're **speaking to** (casual 반말, polite 해요, formal 합쇼; levels
+  a pattern isn't used at are greyed out). **Everyday conversations** opens one of the pattern's ready-made
+  conversations instantly (real situations, checked in advance; **Next** for another). **Your own situation**
+  has Claude write one for a situation you describe. Each use of the pattern is underlined, the pattern's card
+  sits above the text, and the situation and who's talking are shown. Dialogues play in two voices.
+- **Save** keeps a paragraph (grammar texts keep their pattern card); **All saved** lists and reopens them.
 - **Show romanized** displays Revised Romanization above each word. Press it again to hide it.
 - **Translation** shows the English. Hover a Korean sentence (or tap an English one) to highlight its
   matching sentence in the other language; during playback the sentence being read is underlined.
@@ -182,7 +195,7 @@ npm run words:romanize # regenerate Common Words romanizations after editing the
   of a syllable (what comes before changes it) and one for it as a final consonant (what comes after
   changes it). Vowels whose sound depends on context (ㅢ, ㅖ) get one table.
 - The content lives in typed data files, so you can fix or extend it without touching the UI:
-  - `src/data/words.ts`: every example word, stored once (pronunciation, romanization, meaning).
+  - `src/data/exampleWords.ts`: every example word on the reference pages, stored once (pronunciation, romanization, meaning).
   - `src/data/hangul.ts`: letters and syllable-block examples.
   - `src/data/rules.ts`: rule cards, plus structured `changes` data saying which letters each
     rule affects, in which position, and what neighbor triggers it. `BASIC_CHANGES` covers context
@@ -196,9 +209,14 @@ npm run words:romanize # regenerate Common Words romanizations after editing the
 
 ### Common Words (`/words`)
 
-About 600 high-frequency beginner words (TOPIK I, 1급–2급), each with meaning, part of speech,
-category, level, romanization and audio. Where the pronunciation differs from the spelling, the
-pronounced form is shown with links to the rules that explain it (학교 [학꾜] → Tensification).
+About 900 words, each with meaning, part of speech, category, level, register (casual / neutral /
+formal), romanization and audio. Where the pronunciation differs from the spelling, the pronounced form
+is shown with links to the rules that explain it (학교 [학꾜] → Tensification). About 600 were written by
+hand (TOPIK I); the rest come from the 국립국어원 learner word list, ranked by how often they're spoken,
+written by Claude and checked (see `scripts/wordlist/README.md`). Every word is in one file,
+`data/wordSeed.json`, which is loaded into the database; the app reads the list from `/api/words`
+(it needs the server: there's no offline copy). New words are introduced easiest level first, then
+most-spoken first.
 
 - **Today**: pick a drill and press **Start**. You get the cards due today, then a few new words
   (10 per day per drill by default; change it under **Progress & backup**).
@@ -218,31 +236,35 @@ pronounced form is shown with links to the rules that explain it (학교 [학꾜
   Each word shows its audio, pronunciation and review status.
 - **Add words**: pick a category and a level (Beginner TOPIK 1–2, Intermediate 3–4 or Advanced 5–6, the
   same bands as the Reader), and Claude suggests new words (with meaning, part of speech, exact level and
-  pronunciation). The built-in list is TOPIK I (1–2); higher levels come from words you add. Nothing is added until you tick it and press **Add**. You can edit the meaning
-  first. Added words are marked "unverified", because unlike the built-in list they aren't checked.
-- **Progress & backup**: progress is saved in this browser (localStorage). **Export backup** downloads
-  a JSON file. **Import backup** restores it, on this or another device, and replaces the current
-  progress. Clearing site data deletes progress, so export now and then.
+  pronunciation). Nothing is added until you tick it and press **Add**. You can edit the meaning
+  first. Added words are marked "unverified", because unlike the word list they aren't checked.
+- **Progress & backup**: progress is saved in this browser (localStorage) and backed up online in the
+  D1 database, under this browser's random sync key (no account). Reviews are merged, not overwritten:
+  each card keeps its most recent review. **Export backup** downloads a JSON file. **Import backup**
+  restores it, on this or another device, and replaces the current progress. To keep progress in the
+  browser only, build with `VITE_PROGRESS_STORE=local`.
 
 Scheduling is SM-2 (the algorithm classic Anki uses): Good gives 1 day, then 6 days, then the
 interval × the card's ease (starting at 2.5). Again resets the card; Hard and Easy give a shorter or
 longer step and lower or raise the ease.
 
-**How the word list is checked.** The list is in `src/data/commonWords.ts`, and
-`src/data/commonWords.test.ts` checks it:
+**How the word list is checked.** The list is `data/wordSeed.json`, and
+`scripts/wordlist/wordSeed.test.ts` checks every word (the checks are in `src/data/pronunciationCheck.ts`):
 - A rule detector finds every spot where 표준 발음법 *must* change a sound (an obstruent final before
   ㄱㄷㅂㅅㅈ, a final before ㅇ, ㅎ next to ㄱㄷㅂㅈ, ㅢ after a consonant…). Those words must have a
   pronunciation with the matching rule links. A pronunciation where nothing could change also fails.
 - Each pronunciation (tensification aside) must agree with `koroman`'s pronunciation rules, which
-  are an independent implementation. The known `koroman` mistakes are listed in the test, with reasons.
+  are an independent implementation. The known `koroman` mistakes are listed there, with reasons.
 - Pronunciations must keep the spelling's syllables and spaces. Meanings must be unique (so an
-  English → Korean card has one answer). Words that are also in `words.ts` must agree with it.
-- Romanization is generated by `npm run words:romanize` (`koroman` plus hand-checked fixes in
-  `scripts/commonWordsRomanizer.ts`), and a test fails if it's out of date.
+  English → Korean card has one answer). Words that are also in `exampleWords.ts` must agree with it.
+- Romanization is generated by `scripts/wordlist/buildSeed.ts` (`koroman` plus hand-checked fixes in
+  `scripts/wordlist/romanize.ts`), and a test fails if it's out of date.
+- Meanings that share a main sense with another word of the same part of speech need a hint in
+  brackets ("very (formal/written; 아주 in speech)").
 
 What the tests can't decide is tensification that depends on the word itself (compounds like
 물고기 [물꼬기], Sino-Korean ㄹ + ㄷㅅㅈ like 열심히 [열씸히], verb stems like 신다 [신따]). Those were
-checked by hand. Levels (1급/2급) are estimates: there's no single official TOPIK word list.
+checked by hand. Levels are estimates: there's no single official TOPIK word list.
 
 **Getting a Korean voice for the Browser option.** If the app says no Korean voice is installed:
 - **Windows:** Settings → Time & language → Speech → *Add voices* → Korean, then restart the browser.
@@ -296,7 +318,7 @@ gongbu/                     (project root)
     router.tsx              Tiny History-API router + <Link> (no dependency)
     pages/                  HomePage, ReaderPage, HangulChartPage, RulesPage, WordsPage
     components/             UI (Layout, SpeakButton, hangul/…, words/…)
-    data/                   hangul.ts, rules.ts, words.ts, commonWords.ts, vocabularyMeta.ts: all learning content
+    data/                   hangul.ts, rules.ts, exampleWords.ts, vocabularyMeta.ts, pronunciationCheck.ts
     tts/TtsContext.tsx      Shared voice/speed/playback state for every page
     api/client.ts           Calls the backend
     services/tts/
@@ -304,8 +326,11 @@ gongbu/                     (project root)
       registry.ts           Auto-discovers providers/*.ts
       providers/            BrowserTtsProvider.ts, GoogleCloudTtsProvider.ts
     services/srs/           Scheduler interface, schedulers/sm2.ts, session.ts (daily queue, grading)
-    services/progress/      ProgressStore interface, stores/localStorage.ts, backup.ts (export/import)
-  scripts/                  romanize-common-words.ts (regenerates the word list's romanization)
+    services/progress/      ProgressStore interface, stores/ (cloud.ts, localStorage.ts), merge.ts, backup.ts
+  data/wordSeed.json        The Common Words list (one source; loaded into the database)
+  scripts/wordlist/         Builds and checks the word list (see its README)
+  data/grammarPatterns.json Grammar patterns for practice (loaded into the database)
+  scripts/grammar/          Builds and checks the grammar patterns (see its README)
   public/                   favicon.svg / favicon.ico / apple-touch-icon.png / icon-512.png, site.webmanifest
 ```
 
@@ -315,13 +340,24 @@ All routes are under `/api`.
 
 | Method | Path        | Body                                          | Returns                                        |
 | ------ | ----------- | --------------------------------------------- | ---------------------------------------------- |
-| POST   | `/api/generate` | `{ difficulty, length, topic? }`          | `{ paragraph, translation, sentences: [{ english, start, end }], words: [{ korean, romanized, english }] }` (each sentence covers words `start`–`end - 1`) |
+| POST   | `/api/generate` | `{ difficulty, length, topic?, grammar?: { pattern, setting?, politeness } }`          | `{ paragraph, translation, sentences: [{ english, start, end }], words: [{ korean, romanized, english }] }` (each sentence covers words `start`–`end - 1`) |
 | POST   | `/api/tts`      | `{ text, rate, voice? }` (rate 0.25–2.0)  | `audio/mpeg` bytes                              |
 | GET    | `/api/tts/voices` |                                         | `{ voices: [{ name, gender, family }], default }` |
 | POST   | `/api/tts/align`  | `{ audio_base64, words: [...] }`          | `{ word_times }`: exact start time per word via Speech-to-Text, or `null` if unavailable |
 | POST   | `/api/tts/timed` | `{ words: [...], rate, voice? }`        | `{ audio_base64, mime_type, word_times }` (start of each word in seconds; `null` if the TTS provider can't report timings) |
 | POST   | `/api/words/suggest` | `{ category, band? (beginner/intermediate/advanced), count? (1–10), exclude?: [spellings] }` | `{ words: [{ spelling, meaning, pos, level, pronounced?, rules, letters, note?, romanization }] }` (validated: Hangul only, known rule ids, no duplicates) |
 | GET    | `/api/health`   |                                           | Active providers                               |
+| GET    | `/api/grammar`  |                                           | `{ patterns, version }`: grammar patterns for the Reader's Grammar practice (ETag; `304` when unchanged) |
+| GET    | `/api/words`    |                                           | `{ words, version }`: the shared Common Words list (ETag; `304` when unchanged) |
+| GET    | `/api/paragraphs` | (header `X-Sync-Key`)                   | `{ paragraphs: [{ id, createdAt, difficulty, length, topic, preview }] }`, newest first |
+| POST   | `/api/paragraphs` | `{ settings: { difficulty, length, topic }, paragraph }` | `{ saved: { id, … } }` (at most 300 per key) |
+| GET    | `/api/paragraphs/:id` |                                     | `{ saved, settings, paragraph }`               |
+| DELETE | `/api/paragraphs/:id` |                                     | `{ deleted: true }`                            |
+| GET    | `/api/progress` | (header `X-Sync-Key`)                     | `{ progress }` (`null` if nothing saved yet)   |
+| PUT    | `/api/progress` | `{ progress }`                            | `{ progress }`, merged with what was saved      |
+
+The data routes need `X-Sync-Key`: a random key (32–64 letters, digits, `-` or `_`) that each browser
+makes for itself. Data is only visible to the same key. There are no accounts.
 
 Errors are returned as `{ "detail": "<friendly message>" }`, and the UI displays that message.
 
@@ -434,7 +470,12 @@ Time spent waiting on Claude or Google doesn't count toward the Worker's CPU lim
      email, or the IP without Access). Over the limit, the API answers 429 "Too many requests". Change
      `limit` there. Each `namespace_id` must be unique in your Cloudflare account.
    - The Anthropic spend limit (§3) and the Google quota cap and budget alert (§4.5).
-5. **Change settings** (providers, model, voice) under `vars` in `wrangler.jsonc`, then
+5. **The database** (saved paragraphs, progress backup). It's Cloudflare D1, bound as `DB` in
+   `wrangler.jsonc`. If you set up your own copy: run `npx wrangler d1 create gongbu`, put the printed
+   `database_id` into `wrangler.jsonc`, then create the tables with
+   `npx wrangler d1 migrations apply gongbu --remote`. Run that again (before deploying) whenever a new
+   file appears in `migrations/`. Writes are rate-limited too (`DATA_RATE_LIMITER`, 60 per minute).
+6. **Change settings** (providers, model, voice) under `vars` in `wrangler.jsonc`, then
    `npm run deploy` again.
 
 Logs: `npx wrangler tail`, or the Worker's **Logs** tab in the dashboard (observability is enabled in

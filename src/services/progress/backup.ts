@@ -2,7 +2,7 @@
  * Progress (de)serialization: used by stores to read saved data and by Export/Import for backups.
  * Parsing validates everything, so a damaged or hand-edited file can't break the app.
  */
-import type { CommonWord } from "../../data/commonWords";
+import type { CommonWord } from "../../data/vocabularyMeta";
 import {
   CATEGORY_IDS,
   LETTER_NOTE_IDS,
@@ -39,9 +39,10 @@ function parseWord(v: unknown): CommonWord | null {
   const spelling = s(v.spelling, 20);
   const meaning = s(v.meaning, 120);
   if (!id || !spelling || !meaning || !/^[가-힣]+( [가-힣]+)*$/.test(spelling)) return null;
-  if (!(CATEGORY_IDS as unknown[]).includes(v.category) || !(PART_OF_SPEECH_IDS as unknown[]).includes(v.pos)) return null;
+  if (!(CATEGORY_IDS as unknown[]).includes(v.category) || !(PART_OF_SPEECH_IDS as unknown[]).includes(v.pos))
+    return null;
   const level = (LEVELS as readonly unknown[]).includes(v.level) ? (v.level as CommonWord["level"]) : 2;
-  const list = <T,>(x: unknown, allowed: readonly T[]) =>
+  const list = <T>(x: unknown, allowed: readonly T[]) =>
     Array.isArray(x) ? x.filter((i): i is T => (allowed as readonly unknown[]).includes(i)) : [];
   const pronounced = s(v.pronounced, 60) ?? undefined;
   const rules = list(v.rules, RULE_IDS_FOR_WORDS);
@@ -87,6 +88,7 @@ export function parseProgress(data: unknown): Progress {
       newPerDay: num(newPerDay, 0, 100) ? Math.round(newPerDay) : DEFAULT_SETTINGS.newPerDay,
       maxReviews: num(maxReviews, 1, 9999) ? Math.round(maxReviews) : DEFAULT_SETTINGS.maxReviews,
     };
+    if (num(root.settingsChangedAt, 1, 1e14)) progress.settingsChangedAt = root.settingsChangedAt;
   }
   if (Array.isArray(root.addedWords)) {
     const seen = new Set<string>();

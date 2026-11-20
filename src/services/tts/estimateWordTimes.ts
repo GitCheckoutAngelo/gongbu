@@ -106,7 +106,7 @@ export function wordTimesFromEnvelope(
 
   // Silent runs inside the speech that are long enough to be pauses.
   const gaps: { start: number; end: number }[] = [];
-  for (let i = first; i <= last; ) {
+  for (let i = first; i <= last;) {
     if (voiced(i)) {
       i++;
       continue;
@@ -128,7 +128,10 @@ export function wordTimesFromEnvelope(
   const points = words
     .map((w, i) => ({ after: i, kind: SENTENCE_END.test(w) ? "sentence" : CLAUSE_END.test(w) ? "clause" : null }))
     .filter((p): p is { after: number; kind: "sentence" | "clause" } => p.kind !== null && p.after < words.length - 1)
-    .map((p) => ({ ...p, expected: heard && Number.isFinite(heard[p.after + 1]) ? heard[p.after + 1] : rough[p.after + 1] }));
+    .map((p) => ({
+      ...p,
+      expected: heard && Number.isFinite(heard[p.after + 1]) ? heard[p.after + 1] : rough[p.after + 1],
+    }));
 
   // Fix 2: recognition counts a pause as part of the next word; move its starts out of silences first.
   const snappedHeard = heard ? snapToSpeech(heard, { rms, frame }) : null;
@@ -217,7 +220,7 @@ export function snapToSpeech(times: number[], { rms, frame }: Envelope): number[
   const voiced = (i: number) => rms[i] > VOICED * max;
   // Silent runs (any length here: even a short one before a word means it hasn't started yet).
   const silences: { start: number; end: number }[] = [];
-  for (let i = 0; i < rms.length; ) {
+  for (let i = 0; i < rms.length;) {
     if (voiced(i)) {
       i++;
       continue;
@@ -288,7 +291,7 @@ export function alignPauses(
     }
   }
   const pairs: { point: number; gap: number }[] = [];
-  for (let p = P, g = G; p > 0 || g > 0; ) {
+  for (let p = P, g = G; p > 0 || g > 0;) {
     const m = move[p][g];
     if (m === "match") pairs.unshift({ point: --p, gap: --g });
     else if (m === "skipPoint") p--;

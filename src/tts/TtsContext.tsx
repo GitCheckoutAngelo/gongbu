@@ -81,7 +81,28 @@ export interface TtsContextValue {
    * Resolves "ended" if it played to the end, otherwise "stopped" (stopped, replaced, or failed).
    */
   speak: (text: string, key?: string, options?: SpeakOptions) => Promise<SpeakResult>;
+  /**
+   * A dialogue: each turn in its speaker's voice, one after another, as one playback (`key` stays playing
+   * between turns; the next turn's audio is fetched while the current one plays). Word callbacks get the
+   * index across all turns.
+   */
+  speakTurns: (turns: DialogueTurn[], key: string, options?: TurnsOptions) => Promise<SpeakResult>;
   stop: () => void;
+}
+
+export interface DialogueTurn {
+  words: string[];
+  speaker: "primary" | "partner";
+  /** Index of the turn's first word across the whole dialogue. */
+  start: number;
+}
+
+export interface TurnsOptions {
+  /** Start from this word (index across all turns). */
+  startWord?: number;
+  onWord?: (index: number) => void;
+  onProgress?: (index: number) => void;
+  onStart?: () => void;
 }
 
 const TtsContext = createContext<TtsContextValue | null>(null);
@@ -153,6 +174,61 @@ export function TtsProviderRoot({ children }: { children: ReactNode }) {
     [provider, rate, stop],
   );
 
+  // The speed for each turn of a dialogue (read when the turn starts, so a change mid-dialogue carries on).
+  const rateRef = useRef(rate);
+  rateRef.current = rate;
+
+  const speakTurns = useCallback(
+    async (turns: DialogueTurn[], key: string, options: TurnsOptions = {}): Promise<SpeakResult> => {
+      if (!provider) return "stopped";
+      stop();
+      setError(null);
+      if (!provider.isAvailable()) {
+        setError(provider.unavailableMessage?.() ?? "This voice isn't available.");
+        return "stopped";
+      }
+      const token = ++playToken.current;
+      const live = () => token === playToken.current;
+      setPlayingKey(key);
+      setLoadingKey(key);
+      const startWord = options.startWord ?? 0;
+      let first = turns.findIndex((t) => startWord < t.start + t.words.length);
+      if (first < 0) first = 0;
+      try {
+        for (let n = first; n < turns.length; n++) {
+          const turn = turns[n];
+          const next = turns[n + 1];
+          if (next) {
+            provider.prefetch?.(next.words.join(" "), rateRef.current, { words: next.words, speaker: next.speaker });
+          }
+          const outcome = await provider.speak(turn.words.join(" "), rateRef.current, {
+            words: turn.words,
+            speaker: turn.speaker,
+            startWord: n === first ? Math.max(0, startWord - turn.start) : 0,
+            onWord: (i) => live() && options.onWord?.(turn.start + i),
+            onProgress: (i) => live() && options.onProgress?.(turn.start + i),
+            onStart: () => {
+              if (!live()) return;
+              setLoadingKey(null);
+              options.onStart?.();
+            },
+          });
+          if (outcome !== "ended" || !live()) return "stopped";
+        }
+        return "ended";
+      } catch (err) {
+        if (live()) setError(err instanceof Error ? err.message : "Playback failed.");
+        return "stopped";
+      } finally {
+        if (live()) {
+          setPlayingKey(null);
+          setLoadingKey(null);
+        }
+      }
+    },
+    [provider, stop],
+  );
+
   const setProviderId = useCallback(
     (id: string) => {
       stop();
@@ -207,6 +283,7 @@ export function TtsProviderRoot({ children }: { children: ReactNode }) {
       clearError: () => setError(null),
       warning,
       speak,
+      speakTurns,
       stop,
     }),
     [
@@ -226,6 +303,7 @@ export function TtsProviderRoot({ children }: { children: ReactNode }) {
       error,
       warning,
       speak,
+      speakTurns,
       stop,
     ],
   );

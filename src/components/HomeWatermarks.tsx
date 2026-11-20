@@ -22,10 +22,12 @@ export const WatermarkHangul = () => (
   </svg>
 );
 
-/** Sound waves: pronunciation. */
-export const WatermarkRules = () => (
+/** A word as a stem block with an ending snapped on: grammar. */
+export const WatermarkGrammar = () => (
   <svg {...common}>
-    <path d="M14 26v12M22 20v24M30 12v40M38 22v20M46 16v32M54 28v8" />
+    <rect x="8" y="18" width="28" height="28" rx="6" />
+    <path d="M42 18h8a6 6 0 0 1 6 6v16a6 6 0 0 1-6 6h-8" />
+    <path d="M42 26v12" />
   </svg>
 );
 

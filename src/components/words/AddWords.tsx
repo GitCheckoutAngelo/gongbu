@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { suggestWords, type SuggestedWord } from "../../api/client";
-import type { CommonWord } from "../../data/commonWords";
+import type { CommonWord } from "../../data/vocabularyMeta";
 import { CATEGORIES, LEVEL_BANDS, PARTS_OF_SPEECH, type CategoryId, type LevelBand } from "../../data/vocabularyMeta";
 import { IconBars } from "./icons";
 import { SpeakButton } from "../SpeakButton";
@@ -81,7 +81,7 @@ export function AddWords() {
         Add words <span className="muted ko-sub">단어 추가</span>
       </h2>
       <p className="muted">
-        Claude suggests new words for a category and level. Suggestions aren't hand-checked like the built-in list
+        Claude suggests new words for a category and level. Suggestions aren't checked like the word list
         (TOPIK 1–2), so check each one (meaning and pronunciation) before you approve it.
       </p>
       <fieldset className="field">

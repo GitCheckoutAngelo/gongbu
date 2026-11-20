@@ -1,5 +1,5 @@
 /** Shared types for the static Hangul / pronunciation-rule content. */
-import type { WordKey } from "./words";
+import type { ExampleWordKey } from "./exampleWords";
 
 export type RuleId =
   | "block-structure"
@@ -28,8 +28,8 @@ interface JamoBase {
   /** Approximate description for English speakers. */
   sound: string;
   ipa: string;
-  /** Example words (keys into WORDS). */
-  examples: WordKey[];
+  /** Example words (keys into EXAMPLE_WORDS). */
+  examples: ExampleWordKey[];
   notes?: string[];
 }
 
@@ -53,7 +53,7 @@ export type Jamo = Consonant | Vowel;
 
 /** An example on a rule card. */
 export interface RuleExample {
-  word: WordKey;
+  word: ExampleWordKey;
   note?: string;
 }
 
@@ -70,7 +70,7 @@ export interface SoundChangeTarget {
   becomes: string;
   /** The jamo it turns into, when it turns into another letter (used for cross-links). */
   result?: string;
-  example: WordKey;
+  example: ExampleWordKey;
   note?: string;
 }
 

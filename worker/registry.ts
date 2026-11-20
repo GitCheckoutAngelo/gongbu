@@ -15,8 +15,11 @@ export class Registry<T> {
 
   constructor(readonly serviceName: string) {}
 
+  /**
+   * Registering a name again replaces it. That happens in `npm run dev`: editing a file a provider imports
+   * makes the dev server re-run the provider file, while this registry keeps its earlier entry.
+   */
   register(name: string, factory: (settings: Settings) => T): void {
-    if (this.factories.has(name)) throw new Error(`${this.serviceName} provider "${name}" is registered twice`);
     this.factories.set(name, factory);
   }
 

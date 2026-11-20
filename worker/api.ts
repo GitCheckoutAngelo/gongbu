@@ -9,8 +9,14 @@
  *   POST /api/tts/align  { audio_base64, words: [...] }   → { word_times } (null if alignment isn't available)
  *   POST /api/words/suggest { category, band?, count?, exclude? } → { words: [{ spelling, meaning, pos, level,
  *                                                             pronounced?, rules, letters, note?, romanization }] }
+ *   GET  /api/grammar                                     → { patterns, version } grammar patterns for practice
+ *   GET  /api/grammar/conversations?pattern=ID            → { pattern, conversations } ready-made practice texts
+ *   POST /api/generate also takes grammar?: { pattern, setting?, politeness } (practise one pattern; the reply
+ *        then has highlights: [word index] and practice: { pattern, setting, politeness, format })
+ *   GET  /api/words                                       → { words, version } the shared Common Words list
+ *   /api/progress, /api/paragraphs[/:id]                  → per-learner data (see userDataApi.ts)
  */
-import type { Settings } from "./config";
+import type { Env, Settings } from "./config";
 import { ServiceError, ValidationError } from "./errors";
 import { CATEGORY_IDS, LEVEL_BAND_IDS } from "../src/data/vocabularyMeta";
 import {
@@ -31,8 +37,13 @@ import { alignerRegistry, type WordAligner } from "./services/aligner";
 import { DIFFICULTIES, LENGTHS, paragraphRegistry, type ParagraphGenerator } from "./services/paragraph";
 import { romanizerRegistry, type Romanizer } from "./services/romanizer";
 import { ttsRegistry, type TtsService } from "./services/tts";
+import { D1UserDataStore, type UserDataStore } from "./services/userData";
+import { D1WordStore, type WordStore } from "./services/words";
+import { D1GrammarStore, type GrammarStore } from "./services/grammar";
+import { POLITENESS_IDS, PRACTICE_SETTINGS, type GrammarPattern, type Scenario } from "../src/data/grammarMeta";
+import SCENARIOS from "../data/scenarios.json";
 import { wordSuggesterRegistry, type WordSuggester } from "./services/wordSuggester";
-
+import { handleUserData } from "./userDataApi";
 
 /** Services can be injected (tests); otherwise they're created from settings on first use. */
 export interface Services {
@@ -41,10 +52,25 @@ export interface Services {
   tts: () => TtsService;
   wordSuggester: () => WordSuggester;
   aligner: () => WordAligner;
+  userData: () => UserDataStore;
+  words: () => WordStore;
+  grammar: () => GrammarStore;
 }
 
-export function servicesFromSettings(settings: Settings): Services {
+export function servicesFromSettings(settings: Settings, env: Pick<Env, "DB"> = {}): Services {
   return {
+    userData: () => {
+      if (!env.DB) throw new ServiceError("Saving isn't set up on this server (no database).", 503);
+      return new D1UserDataStore(env.DB);
+    },
+    words: () => {
+      if (!env.DB) throw new ServiceError("The word list isn't set up on this server (no database).", 503);
+      return new D1WordStore(env.DB);
+    },
+    grammar: () => {
+      if (!env.DB) throw new ServiceError("Grammar practice isn't set up on this server (no database).", 503);
+      return new D1GrammarStore(env.DB);
+    },
     paragraph: () => paragraphRegistry.create(settings.paragraphProvider, settings),
     romanizer: () => romanizerRegistry.create(settings.romanizerProvider, settings),
     tts: () => ttsRegistry.create(settings.ttsProvider, settings),
@@ -56,7 +82,42 @@ export function servicesFromSettings(settings: Settings): Services {
 const MAX_TTS_CHARS = 1500; // Google limits input to 5000 bytes; Hangul is 3 bytes in UTF-8.
 const MAX_SUGGESTIONS = 10;
 const MAX_ALIGN_AUDIO_B64 = 800_000; // ~600 KB of MP3: well over a minute of Google TTS audio
-const MAX_EXCLUDE = 3000; // the built-in list plus plenty of added words
+const MAX_EXCLUDE = 8000; // the whole word list plus plenty of added words
+
+/** Grammar practice in a /generate request: the pattern (from the database), setting and politeness. */
+async function readPractice(raw: unknown, services: Services) {
+  if (raw === undefined || raw === null) return null;
+  if (typeof raw !== "object" || Array.isArray(raw)) throw new ValidationError("Invalid grammar: expected an object");
+  const g = raw as Record<string, unknown>;
+  const id = requiredString(g.pattern, "grammar.pattern", 80);
+  let politeness = oneOf(g.politeness, POLITENESS_IDS, "grammar.politeness", "polite");
+  const pattern = await services.grammar().get(id);
+  if (!pattern) throw new ValidationError("Invalid grammar.pattern: unknown pattern");
+  // A speech level the pattern isn't used at (e.g. casual for -아/어 주시겠어요?) becomes one it is.
+  const allowed = pattern.speechLevels ?? POLITENESS_IDS;
+  if (!allowed.includes(politeness)) politeness = allowed.includes("polite") ? "polite" : allowed[0];
+  // Your own situation as typed (Claude decides who's talking); none: a real scenario from the library that
+  // suits this pattern and speech level.
+  const custom = optionalString(g.setting, "grammar.setting", 120)?.trim() || undefined;
+  let setting = custom;
+  let scene: string | undefined;
+  if (!custom) {
+    const fits = (SCENARIOS as Scenario[]).filter((s) => s.politeness.includes(politeness));
+    const best = fits.filter((s) => s.functions.includes(pattern.group));
+    const pool = best.length ? best : fits;
+    const pick = pool[Math.floor(Math.random() * pool.length)];
+    if (pick) {
+      setting = PRACTICE_SETTINGS.find((s) => s.id === pick.setting)?.label;
+      scene = `${pick.situation} A is the ${pick.roles.A}; B is the ${pick.roles.B}.`;
+    }
+  }
+  // Written patterns (-(으)므로, -(으)며…) get prose; everything else a dialogue.
+  const format: "dialogue" | "prose" = pattern.register === "written" ? "prose" : "dialogue";
+  return { pattern, request: { pattern, setting, scene, politeness, format } };
+}
+
+/** The paragraph's level follows the pattern's: TOPIK 1-2 beginner, 3-4 intermediate, 5-6 advanced. */
+const difficultyFor = (p: GrammarPattern) => (p.level <= 2 ? "beginner" : p.level <= 4 ? "intermediate" : "advanced");
 
 export async function handleApi(request: Request, settings: Settings, services: Services): Promise<Response> {
   const path = new URL(request.url).pathname.replace(/^\/api/, "") || "/";
@@ -78,9 +139,10 @@ export async function handleApi(request: Request, settings: Settings, services: 
       const difficulty = oneOf(body.difficulty, DIFFICULTIES, "difficulty", "beginner");
       const length = oneOf(body.length, LENGTHS, "length", "short");
       const topic = optionalString(body.topic, "topic", 200);
-      const { paragraph, translation, glosses, sentences } = await services
+      const practice = await readPractice(body.grammar, services);
+      const { paragraph, translation, glosses, sentences, highlights, scene, roles } = await services
         .paragraph()
-        .generate(difficulty, length, topic);
+        .generate(practice ? difficultyFor(practice.pattern) : difficulty, length, topic, practice?.request);
       const words = paragraph.split(/\s+/).filter(Boolean);
       const romanized = services.romanizer().romanizeWords(words);
       return json({
@@ -88,6 +150,17 @@ export async function handleApi(request: Request, settings: Settings, services: 
         translation,
         sentences,
         words: words.map((korean, i) => ({ korean, romanized: romanized[i] ?? "", english: glosses[i] ?? "" })),
+        ...(practice && {
+          highlights: (highlights ?? []).filter((i) => i >= 0 && i < words.length),
+          practice: {
+            pattern: practice.pattern,
+            setting: practice.request.setting ?? "",
+            ...(scene && { scene }),
+            ...(roles && { roles }),
+            politeness: practice.request.politeness,
+            format: practice.request.format,
+          },
+        }),
       });
     }
 
@@ -139,6 +212,37 @@ export async function handleApi(request: Request, settings: Settings, services: 
       return json({ voices, default: settings.googleTtsVoice });
     }
 
+    if (path === "/grammar/conversations" && request.method === "GET") {
+      const id = requiredString(new URL(request.url).searchParams.get("pattern") ?? undefined, "pattern", 80);
+      const grammar = services.grammar();
+      const pattern = await grammar.get(id); // an old (merged) id finds its family
+      if (!pattern) return errorResponse("That grammar pattern wasn't found.", 404);
+      const res = json({ pattern: pattern.id, conversations: await grammar.conversations(pattern.id) });
+      res.headers.set("Cache-Control", "public, max-age=300");
+      return res;
+    }
+
+    if (path === "/grammar" && request.method === "GET") {
+      const { patterns, version } = await services.grammar().list();
+      const etag = `"${version}"`;
+      const headers = { ETag: etag, "Cache-Control": "public, max-age=300" };
+      if (request.headers.get("If-None-Match") === etag) return new Response(null, { status: 304, headers });
+      const res = json({ patterns, version });
+      Object.entries(headers).forEach(([k, v]) => res.headers.set(k, v));
+      return res;
+    }
+
+    if (path === "/words" && request.method === "GET") {
+      const { words, version } = await services.words().list();
+      const etag = `"${version}"`;
+      const headers = { ETag: etag, "Cache-Control": "public, max-age=300" };
+      // Unchanged since the browser's copy: nothing to send.
+      if (request.headers.get("If-None-Match") === etag) return new Response(null, { status: 304, headers });
+      const res = json({ words, version });
+      Object.entries(headers).forEach(([k, v]) => res.headers.set(k, v));
+      return res;
+    }
+
     if (path === "/words/suggest" && request.method === "POST") {
       const body = await readJson(request);
       if (body.category === undefined) throw new ValidationError("Invalid category: required");
@@ -150,6 +254,9 @@ export async function handleApi(request: Request, settings: Settings, services: 
       const romanized = services.romanizer().romanizeWords(words.map((w) => w.spelling));
       return json({ words: words.map((w, i) => ({ ...w, romanization: romanized[i] ?? "" })) });
     }
+
+    const userData = await handleUserData(request, path, services.userData);
+    if (userData) return userData;
 
     return errorResponse("Not found", 404);
   } catch (err) {

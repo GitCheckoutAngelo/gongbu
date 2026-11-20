@@ -75,7 +75,8 @@ describe("wordTimesFromEnvelope (measured)", () => {
       ["v", 180], // 우리는 같이 영화를 봤어요.
       ["s", 20],
     ]);
-    const words = "어제는 비가 와서, 집에서 책을 읽었어요. 오후에는 친구가 놀러 왔어요. 우리는 같이 영화를 봤어요.".split(" ");
+    const words =
+      "어제는 비가 와서, 집에서 책을 읽었어요. 오후에는 친구가 놀러 왔어요. 우리는 같이 영화를 봤어요.".split(" ");
     const t = wordTimesFromEnvelope(words, e)!;
     expect(t[3]).toBeCloseTo(1.48, 2); // 집에서: after the comma pause
     expect(t[6]).toBeCloseTo(3.34, 2); // 오후에는: after sentence 1's pause, not the comma's
@@ -171,7 +172,15 @@ describe("wordTimesFromEnvelope (measured)", () => {
     // Recognition put word 2 at 1.0s (start of the pause); word 3 is mid-speech and stays.
     expect(snapToSpeech([0, 1.0, 2.0], e)).toEqual([0, 1.6, 2.0]);
     // Leading silence: the first word moves to the speech onset.
-    expect(snapToSpeech([0, 0.5], env([["s", 20], ["v", 80]]))).toEqual([0.2, 0.5]);
+    expect(
+      snapToSpeech(
+        [0, 0.5],
+        env([
+          ["s", 20],
+          ["v", 80],
+        ]),
+      ),
+    ).toEqual([0.2, 0.5]);
   });
 
   it("builds an envelope from samples", () => {

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import type { CommonWord } from "../../data/commonWords";
+import type { CommonWord } from "../../data/vocabularyMeta";
 import { CATEGORIES, PARTS_OF_SPEECH, type CategoryId } from "../../data/vocabularyMeta";
 import { localDate } from "../../services/srs/dates";
 import { applyGrade, buildSession, cardKey, requeue, summarize, type SessionCard } from "../../services/srs/session";

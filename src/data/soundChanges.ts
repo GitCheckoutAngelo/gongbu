@@ -5,14 +5,14 @@
 import { JAMO, jamoByChar } from "./hangul";
 import { BASIC_CHANGES, RULES } from "./rules";
 import type { ChangePosition, Jamo, PronunciationRule, SoundChange } from "./types";
-import { lookupWord, type Word, type WordKey } from "./words";
+import { lookupExample, type ExampleWord, type ExampleWordKey } from "./exampleWords";
 
 export interface ChangeRow {
   position: ChangePosition;
   when: string;
   becomes: string;
   note?: string;
-  example: Word & { spelling: WordKey };
+  example: ExampleWord & { spelling: ExampleWordKey };
   frequency: 1 | 2 | 3;
   /** The rule card this row comes from (links to /rules#id), or undefined for basic sounds. */
   rule?: PronunciationRule;
@@ -30,9 +30,7 @@ interface Source {
 // Basic sounds first, then rules in learning order; within the same frequency this keeps rows sensible.
 const SOURCES: Source[] = [
   ...BASIC_CHANGES.map((change, i) => ({ change, reference: change.reference, order: i })),
-  ...RULES.flatMap((rule, r) =>
-    rule.changes.map((change, i) => ({ change, rule, order: 100 + r * 10 + i })),
-  ),
+  ...RULES.flatMap((rule, r) => rule.changes.map((change, i) => ({ change, rule, order: 100 + r * 10 + i }))),
 ];
 
 export function changeRowsFor(char: string): Record<ChangePosition, ChangeRow[]> {
@@ -45,7 +43,7 @@ export function changeRowsFor(char: string): Record<ChangePosition, ChangeRow[]>
       when: change.when,
       becomes: target.becomes,
       note: target.note,
-      example: lookupWord(target.example),
+      example: lookupExample(target.example),
       frequency: change.frequency,
       rule,
       reference,
@@ -76,10 +74,7 @@ export function alsoInvolvedRules(char: string): PronunciationRule[] {
   return RULES.filter(
     (rule) =>
       !own.has(rule.id) &&
-      rule.changes.some(
-        (c) =>
-          c.neighbors?.includes(char) || Object.values(c.targets).some((t) => t?.result === char),
-      ),
+      rule.changes.some((c) => c.neighbors?.includes(char) || Object.values(c.targets).some((t) => t?.result === char)),
   );
 }
 

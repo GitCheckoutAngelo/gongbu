@@ -23,7 +23,17 @@ const ALIGNED = [
   { english: SENTENCES[0].english, start: 0, end: 5 },
   { english: SENTENCES[1].english, start: 5, end: 9 },
 ];
-const GLOSSES = ["I (topic)", "every morning", "in the park", "a walk (object)", "do", "the weather (subject)", "if it's nice", "mood too", "is good"];
+const GLOSSES = [
+  "I (topic)",
+  "every morning",
+  "in the park",
+  "a walk (object)",
+  "do",
+  "the weather (subject)",
+  "if it's nice",
+  "mood too",
+  "is good",
+];
 const WORDS = KOREAN.split(" ").map((word, i) => ({ word, english: GLOSSES[i] }));
 const JSON_REPLY = JSON.stringify({ korean: KOREAN, sentences: SENTENCES, words: WORDS });
 const EXPECTED = { paragraph: KOREAN, translation: ENGLISH, glosses: GLOSSES, sentences: ALIGNED };
@@ -56,7 +66,7 @@ describe("ClaudeParagraphGenerator", () => {
     expect(args.system).toContain("ONLY the Korean paragraph");
     expect(args.output_config.effort).toBe("low");
     expect(args.output_config.format.type).toBe("json_schema");
-    expect(args.output_config.format.schema.required).toEqual(["korean", "sentences", "words"]);
+    expect(args.output_config.format.schema.required).toEqual(["korean", "sentences", "words", "scene", "roles"]);
     const prompt: string = args.messages[0].content;
     expect(prompt).toContain("Advanced");
     expect(prompt).toContain("8-12 sentences");
@@ -115,9 +125,7 @@ describe("ClaudeParagraphGenerator", () => {
 
   it("cleans the Korean field and tidies the translation's whitespace", () => {
     const messy = SENTENCES.map((s) => ({ ...s, english: `  ${s.english}\n ` }));
-    expect(parseReply(JSON.stringify({ korean: `“${KOREAN}”`, sentences: messy, words: WORDS }))).toEqual(
-      EXPECTED,
-    );
+    expect(parseReply(JSON.stringify({ korean: `“${KOREAN}”`, sentences: messy, words: WORDS }))).toEqual(EXPECTED);
   });
 });
 
@@ -208,5 +216,24 @@ describe("alignSentences", () => {
     const old = parseReply(JSON.stringify({ korean: KOREAN, english: ENGLISH, words: WORDS }));
     expect(old.translation).toBe(ENGLISH);
     expect(old.sentences).toEqual([]);
+  });
+
+  it("reads which words use the practised pattern, and dialogue speakers", () => {
+    const reply = JSON.stringify({
+      korean: "커피 마실까요? 네, 좋아요.",
+      sentences: [
+        { korean: "커피 마실까요?", english: "Shall we have coffee?", speaker: "A" },
+        { korean: "네, 좋아요.", english: "Yes, sounds good.", speaker: "B" },
+      ],
+      words: [
+        { word: "커피", english: "coffee", pattern: false },
+        { word: "마실까요?", english: "shall we drink?", pattern: true },
+        { word: "네,", english: "yes", pattern: false },
+        { word: "좋아요.", english: "good", pattern: false },
+      ],
+    });
+    const result = parseReply(reply);
+    expect(result.highlights).toEqual([1]);
+    expect(result.sentences.map((s) => s.speaker)).toEqual(["A", "B"]);
   });
 });

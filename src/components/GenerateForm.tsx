@@ -13,9 +13,11 @@ interface Props {
   onGenerate: () => void;
   /** When set (a paragraph already exists), show "Keep current" next to Generate: close without regenerating. */
   onCancel?: () => void;
+  /** Inside another card (the Reader's form card with the mode switch): no card of its own. */
+  embedded?: boolean;
 }
 
-interface Option<T> {
+export interface Option<T> {
   value: T;
   label: string;
   hint: string;
@@ -36,11 +38,15 @@ export const LENGTHS: Option<Length>[] = [
 ];
 
 /** A row of icon tiles that behaves like a radio group. */
-function TileGroup<T extends string>(props: {
+export function TileGroup<T extends string>(props: {
   legend: string;
   options: Option<T>[];
   value: T;
   onChange: (v: T) => void;
+  /** Options that can't be chosen right now (greyed out). */
+  isDisabled?: (v: T) => boolean;
+  /** A short line under the tiles (e.g. why some are unavailable). */
+  note?: string;
 }) {
   return (
     <fieldset className="field">
@@ -54,6 +60,7 @@ function TileGroup<T extends string>(props: {
               type="button"
               role="radio"
               aria-checked={selected}
+              disabled={props.isDisabled?.(opt.value)}
               className={`option-tile${selected ? " selected" : ""}`}
               onClick={() => props.onChange(opt.value)}
             >
@@ -64,6 +71,7 @@ function TileGroup<T extends string>(props: {
           );
         })}
       </div>
+      {props.note && <p className="muted small tile-note">{props.note}</p>}
     </fieldset>
   );
 }
@@ -75,7 +83,7 @@ export function GenerateForm(props: Props) {
   };
 
   return (
-    <form className="card generate-form" onSubmit={submit}>
+    <form className={props.embedded ? "generate-fields" : "card generate-form"} onSubmit={submit}>
       <TileGroup
         legend="Difficulty"
         options={DIFFICULTIES}

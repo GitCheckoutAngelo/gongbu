@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect } from "react";
 import { Layout } from "./components/Layout";
+import { GrammarPage } from "./pages/GrammarPage";
 import { HangulChartPage } from "./pages/HangulChartPage";
 import { HomePage } from "./pages/HomePage";
 import { ReaderPage } from "./pages/ReaderPage";
@@ -10,7 +11,17 @@ import { TtsProviderRoot, useTts } from "./tts/TtsContext";
 // Loaded on demand: the word list is the biggest piece of data in the app.
 const WordsPage = lazy(() => import("./pages/WordsPage"));
 
-const KNOWN_PATHS = ["/", "/hangul", "/rules", "/words", "/words/browse", "/words/add", "/reader"];
+const KNOWN_PATHS = [
+  "/",
+  "/hangul",
+  "/rules",
+  "/grammar",
+  "/grammar/patterns",
+  "/words",
+  "/words/browse",
+  "/words/add",
+  "/reader",
+];
 
 function Routes() {
   const { path, hash } = useLocation();
@@ -38,6 +49,10 @@ function Routes() {
     case "/rules":
       page = <RulesPage hash={hash} />;
       break;
+    case "/grammar":
+    case "/grammar/patterns":
+      page = <GrammarPage view={path === "/grammar" ? "basics" : "patterns"} />;
+      break;
     case "/words":
     case "/words/browse":
     case "/words/add":
@@ -50,8 +65,7 @@ function Routes() {
     default:
       page = <HomePage />;
   }
-  const section = path.startsWith("/words") ? "/words" : KNOWN_PATHS.includes(path) ? path : "/";
-  return <Layout path={section}>{page}</Layout>;
+  return <Layout path={KNOWN_PATHS.includes(path) ? path : "/"}>{page}</Layout>;
 }
 
 export default function App() {

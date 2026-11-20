@@ -7,7 +7,7 @@ import { SpeakButton } from "../components/SpeakButton";
 import { RULES } from "../data/rules";
 import { relatedJamoForRule } from "../data/soundChanges";
 import type { PronunciationRule } from "../data/types";
-import { lookupWord } from "../data/words";
+import { lookupExample } from "../data/exampleWords";
 import { Link, navigate } from "../router";
 
 function searchText(rule: PronunciationRule): string {
@@ -18,7 +18,7 @@ function searchText(rule: PronunciationRule): string {
     ...rule.formulas,
     ...(rule.notes ?? []),
     ...rule.examples.flatMap((e) => {
-      const w = lookupWord(e.word);
+      const w = lookupExample(e.word);
       return [w.spelling, w.pronounced ?? "", w.romanization, w.meaning, e.note ?? ""];
     }),
     ...relatedJamoForRule(rule).flatMap((j) => [j.char, j.name]),
@@ -40,7 +40,7 @@ function tileExample(rule: PronunciationRule): { from: string; to: string } | nu
     return { from, to };
   }
   for (const { word } of rule.examples) {
-    const w = lookupWord(word);
+    const w = lookupExample(word);
     if (w.pronounced) return { from: w.spelling, to: `[${w.pronounced.split("/")[0]}]` };
   }
   return null;
@@ -177,13 +177,7 @@ function RuleSheet({
   );
 }
 
-function RuleCard({
-  rule,
-  index,
-}: {
-  rule: PronunciationRule;
-  index: number;
-}) {
+function RuleCard({ rule, index }: { rule: PronunciationRule; index: number }) {
   const related = relatedJamoForRule(rule);
   return (
     <article className="rule-card">
@@ -218,7 +212,7 @@ function RuleCard({
         </thead>
         <tbody>
           {rule.examples.map(({ word, note }) => {
-            const ex = lookupWord(word);
+            const ex = lookupExample(word);
             return (
               <tr key={ex.spelling}>
                 <td>
