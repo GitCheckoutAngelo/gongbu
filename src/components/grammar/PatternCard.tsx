@@ -132,7 +132,12 @@ export function PatternCard({
             {pattern.form}
           </span>
         </span>
-        <button type="button" className="pattern-card-toggle" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
+        <button
+          type="button"
+          className="pattern-card-toggle"
+          aria-expanded={open}
+          onClick={() => setOpen((o) => !o)}
+        >
           How it works <IconChevronDown />
         </button>
         {action}
@@ -173,14 +178,17 @@ export function PatternCard({
             {(pattern.note || pattern.variants?.length) && (
               <section className="pattern-section">
                 <h4 className="pattern-section-label">Good to know</h4>
-                {pattern.note && <p className="pattern-note small">{pattern.note}</p>}
+                {pattern.note && (
+                  <p className="pattern-note small">{pattern.note}</p>
+                )}
                 {pattern.variants?.length ? (
                   <p className="pattern-variants small">
                     Similar forms:{" "}
                     {pattern.variants.map((v, i) => (
                       <span key={v.form}>
                         {i > 0 && " · "}
-                        <span lang="ko">{v.form}</span> <span className="muted">({v.title})</span>
+                        <span lang="ko">{v.form}</span>{" "}
+                        <span className="muted">({v.title})</span>
                       </span>
                     ))}
                   </p>

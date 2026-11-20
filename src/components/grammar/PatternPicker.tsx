@@ -4,7 +4,11 @@
  */
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { GRAMMAR_GROUPS, type GrammarGroupId, type GrammarPattern } from "../../data/grammarMeta";
+import {
+  GRAMMAR_GROUPS,
+  type GrammarGroupId,
+  type GrammarPattern,
+} from "../../data/grammarMeta";
 import { PatternExample } from "./PatternCard";
 
 /** Matches the .sheet-backdrop.closing animation in styles.css. */
@@ -54,7 +58,9 @@ export function PatternPicker({
           (!level || p.level === level) &&
           (!group || p.group === group) &&
           (!q ||
-            `${p.form} ${p.title} ${p.meaning} ${p.sample.ko} ${p.sample.en} ${(p.variants ?? [])
+            `${p.form} ${p.title} ${p.meaning} ${p.sample.ko} ${p.sample.en} ${(
+              p.variants ?? []
+            )
               .map((v) => `${v.form} ${v.title}`)
               .join(" ")}`
               .toLowerCase()
@@ -62,13 +68,17 @@ export function PatternPicker({
       ),
     [patterns, level, group, q],
   );
-  const byGroup = GRAMMAR_GROUPS.map((g) => ({ ...g, items: visible.filter((p) => p.group === g.id) })).filter(
-    (g) => g.items.length,
-  );
+  const byGroup = GRAMMAR_GROUPS.map((g) => ({
+    ...g,
+    items: visible.filter((p) => p.group === g.id),
+  })).filter((g) => g.items.length);
 
   // Rendered at the end of <body>, outside the form it's opened from (Enter in its search mustn't submit it).
   return createPortal(
-    <div className={`sheet-backdrop${closing ? " closing" : ""}`} onClick={close}>
+    <div
+      className={`sheet-backdrop${closing ? " closing" : ""}`}
+      onClick={close}
+    >
       <div
         className="sheet pattern-sheet"
         role="dialog"
@@ -76,7 +86,12 @@ export function PatternPicker({
         aria-labelledby="pattern-sheet-title"
         onClick={(e) => e.stopPropagation()}
       >
-        <button type="button" className="sheet-close" aria-label="Close" onClick={close}>
+        <button
+          type="button"
+          className="sheet-close"
+          aria-label="Close"
+          onClick={close}
+        >
           ×
         </button>
         <h2 id="pattern-sheet-title" className="saved-title">
@@ -93,16 +108,29 @@ export function PatternPicker({
         />
         <div className="pattern-filters">
           <div className="level-chips" role="group" aria-label="Level">
-            <button type="button" aria-pressed={level === null} onClick={() => setLevel(null)}>
+            <button
+              type="button"
+              aria-pressed={level === null}
+              onClick={() => setLevel(null)}
+            >
               All
             </button>
             {LEVEL_CHOICES.map((l) => (
-              <button key={l} type="button" aria-pressed={level === l} onClick={() => setLevel(level === l ? null : l)}>
+              <button
+                key={l}
+                type="button"
+                aria-pressed={level === l}
+                onClick={() => setLevel(level === l ? null : l)}
+              >
                 {l}급
               </button>
             ))}
           </div>
-          <select aria-label="Meaning" value={group} onChange={(e) => setGroup(e.target.value as GrammarGroupId | "")}>
+          <select
+            aria-label="Meaning"
+            value={group}
+            onChange={(e) => setGroup(e.target.value as GrammarGroupId | "")}
+          >
             <option value="">Any meaning</option>
             {GRAMMAR_GROUPS.map((g) => (
               <option key={g.id} value={g.id}>
@@ -143,8 +171,14 @@ export function PatternPicker({
                         <PatternExample sample={p.sample} inButton />
                       </span>
                       <span className="pattern-tags">
-                        {p.register !== "both" && <span className={`register-badge ${p.register}`}>{p.register}</span>}
-                        <span className={`level-badge band-${p.level <= 2 ? "beginner" : "intermediate"}`}>
+                        {p.register !== "both" && (
+                          <span className={`register-badge ${p.register}`}>
+                            {p.register}
+                          </span>
+                        )}
+                        <span
+                          className={`level-badge band-${p.level <= 2 ? "beginner" : "intermediate"}`}
+                        >
                           {p.level}급
                         </span>
                       </span>

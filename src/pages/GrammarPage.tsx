@@ -2,7 +2,19 @@
  * Learn → Grammar: how a Korean sentence is built (sentence basics), then every grammar pattern as a
  * reference, each with "How it works" and a Practise button that opens the Reader with it chosen.
  */
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
+import {
+  BasicsPlayground,
+  MainPin,
+} from "../components/grammar/BasicsPlayground";
+import { GlossText, GlossTip } from "../components/grammar/GlossText";
 import { PatternCard } from "../components/grammar/PatternCard";
 import {
   IconChevronLeft,
@@ -63,7 +75,14 @@ function ListenButton({ text }: { text: string }) {
 }
 
 /** An example sentence split into its parts, each with what it is underneath. */
-function Breakdown({ example }: { example: BasicsExample }) {
+function Breakdown({
+  example,
+  pinLast,
+}: {
+  example: BasicsExample;
+  /** Mark the last part as the main word (the steps about sentence types and word order). */
+  pinLast?: boolean;
+}) {
   const sentence = example.parts
     .map((p) => p.ko)
     .join(example.oneWord ? "" : " ");
@@ -86,8 +105,14 @@ function Breakdown({ example }: { example: BasicsExample }) {
         lang="ko"
       >
         {example.parts.map((p, i) => (
-          <span key={i} className={`breakdown-part role-${p.role}`}>
+          <span
+            key={i}
+            className={`breakdown-part has-tip role-${p.role}`}
+            tabIndex={0}
+          >
+            <GlossTip ko={p.ko} />
             <span className="breakdown-ko">
+              {pinLast && i === example.parts.length - 1 && <MainPin />}
               {p.particle && p.ko.endsWith(p.particle) ? (
                 <>
                   {p.ko.slice(0, -p.particle.length)}
@@ -143,40 +168,55 @@ function BasicsCard({
           {topic.ko}
         </span>
       </h3>
-      <p className="basics-explain">{topic.explain}</p>
+      <p className="basics-explain">
+        <GlossText text={topic.explain} />
+      </p>
       <div className="basics-examples">
         {topic.examples.map((e, i) => (
-          <Breakdown key={i} example={e} />
+          <Breakdown key={i} example={e} pinLast={topic.id === "order"} />
         ))}
       </div>
       {topic.tableIntro && (
-        <p className="basics-table-intro small">{topic.tableIntro}</p>
+        <p className="basics-table-intro small">
+          <GlossText text={topic.tableIntro} />
+        </p>
       )}
       {topic.table && (
         <dl className="basics-table">
           {topic.table.map((row) => (
             <div key={row.label} className="basics-row">
-              <dt lang="ko">{row.ko}</dt>
+              <dt lang="ko">
+                {/* An ending is shown as written: its 을 or 는 isn't the tag, so no word bubbles. */}
+                {row.ending ? row.ko : <GlossText text={row.ko} />}
+                {row.rom && <span className="basics-row-rom">{row.rom}</span>}
+              </dt>
               <dd>
-                {row.label}
+                <GlossText text={row.label} />
                 {row.uses ? (
                   <ol className="basics-uses">
                     {row.uses.map((u) => (
-                      <li key={u}>{u}</li>
+                      <li key={u}>
+                        <GlossText text={u} />
+                      </li>
                     ))}
                   </ol>
                 ) : (
-                  <span className="muted" lang="ko">
-                    {" "}
-                    {row.example}
-                  </span>
+                  row.example && (
+                    <span className="muted basics-example">
+                      <GlossText text={row.example} />
+                    </span>
+                  )
                 )}
               </dd>
             </div>
           ))}
         </dl>
       )}
-      {topic.note && <p className="basics-note small muted">{topic.note}</p>}
+      {topic.note && (
+        <p className="basics-note small muted">
+          <GlossText text={topic.note} />
+        </p>
+      )}
       {children}
     </article>
   );
@@ -334,7 +374,30 @@ const topicFromHash = () =>
 function BasicsSteps() {
   const [step, setStep] = useState(topicFromHash);
   const [from, setFrom] = useState<"left" | "right" | null>(null);
+  // Smooth switching: remember the card's height before the step changes, then grow or shrink
+  // from it to the new card's height, so the page below glides instead of jumping.
+  const pane = useRef<HTMLDivElement>(null);
+  const heightBefore = useRef<number | null>(null);
+  useLayoutEffect(() => {
+    const el = pane.current;
+    const was = heightBefore.current;
+    heightBefore.current = null;
+    if (!el || was === null) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const now = el.offsetHeight;
+    if (Math.abs(now - was) < 2) return;
+    el.style.overflow = "clip";
+    const anim = el.animate([{ height: `${was}px` }, { height: `${now}px` }], {
+      duration: 320,
+      easing: "cubic-bezier(0.2, 0.8, 0.2, 1)",
+    });
+    anim.onfinish = anim.oncancel = () => {
+      el.style.overflow = "";
+    };
+  }, [step]);
   const go = (to: number) => {
+    if (to === step) return;
+    heightBefore.current = pane.current?.offsetHeight ?? null;
     setFrom(to > step ? "right" : "left");
     setStep(to);
     window.history.replaceState(null, "", `/grammar#${SENTENCE_BASICS[to].id}`);
@@ -350,7 +413,8 @@ function BasicsSteps() {
     <>
       <p className="basics-intro muted">
         How a Korean sentence is put together, in {SENTENCE_BASICS.length} short
-        steps. Tap the speaker to hear the examples.
+        steps. Tap the speaker to hear an example, and hover or tap any Korean
+        word to see how it&rsquo;s read and what it means.
       </p>
       <nav className="basics-steps" aria-label="Sentence basics">
         {SENTENCE_BASICS.map((t, i) => (
@@ -366,41 +430,47 @@ function BasicsSteps() {
           </button>
         ))}
       </nav>
-      <div
-        key={topic.id}
-        className={from ? `mode-pane from-${from}` : undefined}
-      >
-        <BasicsCard topic={topic}>
-          <div className="basics-pager">
-            {prev ? (
-              <button
-                type="button"
-                className="basics-back"
-                onClick={() => go(step - 1)}
-              >
-                <IconChevronLeft /> Back
-              </button>
-            ) : (
-              <span />
-            )}
-            {next ? (
-              <button
-                type="button"
-                className="primary basics-forward"
-                onClick={() => go(step + 1)}
-              >
-                Next: {next.short} <IconChevronRight />
-              </button>
-            ) : (
-              <Link
-                to="/grammar/patterns"
-                className="button primary basics-forward"
-              >
-                Next: grammar patterns <IconChevronRight />
-              </Link>
-            )}
-          </div>
-        </BasicsCard>
+      <div ref={pane}>
+        <div
+          key={topic.id}
+          className={from ? `mode-pane from-${from}` : undefined}
+        >
+          <BasicsCard topic={topic}>
+            <BasicsPlayground
+              topicId={topic.id}
+              listen={(text) => <ListenButton text={text} />}
+            />
+            <div className="basics-pager">
+              {prev ? (
+                <button
+                  type="button"
+                  className="basics-back"
+                  onClick={() => go(step - 1)}
+                >
+                  <IconChevronLeft /> Back
+                </button>
+              ) : (
+                <span />
+              )}
+              {next ? (
+                <button
+                  type="button"
+                  className="primary basics-forward"
+                  onClick={() => go(step + 1)}
+                >
+                  Next: {next.short} <IconChevronRight />
+                </button>
+              ) : (
+                <Link
+                  to="/grammar/patterns"
+                  className="button primary basics-forward"
+                >
+                  Next: grammar patterns <IconChevronRight />
+                </Link>
+              )}
+            </div>
+          </BasicsCard>
+        </div>
       </div>
     </>
   );
